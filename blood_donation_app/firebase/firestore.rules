@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if false; // Prevent deletion
+    }
+    
+    // Encryption keys collection - highly restricted
+    match /encryption_keys/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false; // Only Cloud Functions can write
+    }
+    
+    // Donations collection
+    match /donations/{donationId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if false; // Prevent deletion
+    }
+    
+    // Requests collection
+    match /requests/{requestId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.requesterId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        // Owner can update everything
+        resource.data.requesterId == request.auth.uid ||
+        // Others can only update responders array
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['responders', 'updatedAt']))
+      );
+      allow delete: if false; // Prevent deletion
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if false; // Only Cloud Functions can create
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && 
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Device tokens collection
+    match /deviceTokens/{tokenId} {
+      allow read: if false; // Only Cloud Functions can read
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Health data collection
+    match /healthData/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+    
+    // User settings collection
+    match /userSettings/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+    
+    // Support requests collection
+    match /support_requests/{requestId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false; // Prevent updates and deletions
+    }
+    
+    // Achievements collection
+    match /achievements/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+  }
+}
