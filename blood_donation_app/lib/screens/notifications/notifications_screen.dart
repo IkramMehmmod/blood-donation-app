@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../services/notification_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/firebase_service.dart';
+import '../../widgets/not_signed_in_message.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({Key? key}) : super(key: key);
@@ -198,16 +199,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildNotificationAvatar(Map<String, dynamic> notification) {
     final data = notification['data'] as Map<String, dynamic>?;
-    // Use 'referenceId' for consistency
     final referenceId = notification['referenceId']?.toString();
 
-    // Try to get user ID from different possible fields, using camelCase
     String? userId;
     if (data != null) {
-      userId = data['requesterId']
-              ?.toString() ?? // assuming 'requesterId' from data
-          data['responderId']?.toString() ?? // assuming 'responderId' from data
-          data['userId']?.toString(); // Corrected from 'user_id' to 'userId'
+      userId = data['requesterId']?.toString() ??
+          data['responderId']?.toString() ??
+          data['userId']?.toString();
     }
     userId ??= referenceId;
 
@@ -239,8 +237,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         }
 
         final userData = snapshot.data;
-        final imageUrl = userData?['imageUrl']?.toString() ?? '';
-        final userName = userData?['name']?.toString() ?? 'Unknown User';
+        if (userData == null) {
+          debugPrint(
+              'User data missing for notification: ${notification['id'] ?? ''}');
+          return CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.red.withOpacity(0.1),
+            child: Text(
+              'U',
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          );
+        }
+        final imageUrl = userData['imageUrl']?.toString() ?? '';
+        final userName = userData['name']?.toString() ?? 'Unknown User';
 
         return CircleAvatar(
           radius: 25,
@@ -266,6 +280,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = Provider.of<AuthService>(context).currentUser;
+    if (currentUser == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Notifications'),
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
+        ),
+        body: const NotSignedInMessage(
+          message: 'Please sign in to view notifications',
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
