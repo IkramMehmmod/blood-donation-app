@@ -832,7 +832,7 @@ class _DonationScreenState extends State<DonationScreen> {
             children: [
               Icon(Icons.check_circle, color: Colors.green),
               SizedBox(width: 8),
-              Text('Certificate Generated'),
+              Text('Certificate\nGenerated'),
             ],
           ),
           content: Column(
@@ -873,6 +873,7 @@ class _DonationScreenState extends State<DonationScreen> {
               icon: Icon(Icons.share),
               label: Text('Share'),
             ),
+            SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () async {
                 Navigator.pop(context);

@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Add this import
 
 import 'firebase_options.dart';
@@ -139,30 +138,23 @@ class _MyAppState extends State<MyApp> {
       ],
       child: Consumer<ThemeService>(
         builder: (context, themeService, child) {
-          return ScreenUtilInit(
-            designSize: const Size(360, 690),
-            minTextAdapt: true,
-            splitScreenMode: true,
-            builder: (context, _) {
-              return MaterialApp(
-                title: 'Blood Donation App',
-                debugShowCheckedModeBanner: false,
-                navigatorKey: navigatorKey,
-                theme: AppTheme.lightTheme,
-                darkTheme: AppTheme.darkTheme,
-                themeMode: themeService.themeMode,
-                initialRoute: AppRoutes.splash,
-                onGenerateRoute: AppRoutes.generateRoute,
-                onUnknownRoute: (settings) {
-                  return MaterialPageRoute(
-                    builder: (context) => Scaffold(
-                      appBar: AppBar(title: const Text('Error')),
-                      body: const Center(
-                        child: Text('Page not found'),
-                      ),
-                    ),
-                  );
-                },
+          return MaterialApp(
+            title: 'Blood Donation App',
+            debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeService.themeMode,
+            initialRoute: AppRoutes.splash,
+            onGenerateRoute: AppRoutes.generateRoute,
+            onUnknownRoute: (settings) {
+              return MaterialPageRoute(
+                builder: (context) => Scaffold(
+                  appBar: AppBar(title: const Text('Error')),
+                  body: const Center(
+                    child: Text('Page not found'),
+                  ),
+                ),
               );
             },
           );

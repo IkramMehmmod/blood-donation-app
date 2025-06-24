@@ -7,6 +7,7 @@ import '../../services/auth_service.dart';
 import '../../services/firebase_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../routes/app_routes.dart';
+import '../../widgets/not_signed_in_message.dart';
 
 class HealthScreen extends StatefulWidget {
   const HealthScreen({Key? key}) : super(key: key);
@@ -177,6 +178,36 @@ class _HealthScreenState extends State<HealthScreen> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthService>(context).currentUser;
+
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Health Profile'),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const NotSignedInMessage(
+                message: 'Please sign in to view your health profile',
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Health Tips',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildHealthTips(),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

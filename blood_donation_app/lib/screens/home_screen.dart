@@ -13,10 +13,9 @@ import 'support/support_screen.dart';
 import 'about/about_us_screen.dart';
 import 'blood_info/blood_info_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -31,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<RequestModel> _urgentRequests = [];
   int _totalDonations = 0;
   int _livesSaved = 0;
+
   bool _isLoadingStats = true;
 
   // Standardized URL launcher
@@ -84,9 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Get donation statistics from Firebase
         final stats = await _firebaseService.getUserDonationStats(user.id!);
+        final totalDonations = stats['totalDonations'] ?? 0;
         setState(() {
-          _totalDonations = stats['totalDonations'] ?? 0;
-          _livesSaved = stats['livesSaved'] ?? 0;
+          _totalDonations = totalDonations;
+          _livesSaved = totalDonations; // 1 donation = 1 life saved
+
           _isLoadingStats = false;
         });
       } else {
@@ -159,16 +161,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('BloodBridge',
-            style: TextStyle(fontSize: 20.sp)), // Responsive font size
+        title: Text('BloodBridge', style: TextStyle(fontSize: 20)),
         actions: [
           IconButton(
             icon: NotificationBadge(
               badgeColor: Colors.white,
               badgeTextColor: Colors.black,
-              padding: EdgeInsets.only(bottom: 40.sp),
-              child: Icon(Icons.notifications_outlined, size: 24.sp),
-            ), // Responsive icon size
+              badgeSize: 12.0,
+              padding: EdgeInsets.only(bottom: 40),
+              child: Icon(Icons.notifications_outlined, size: 24),
+            ),
             onPressed: () {
               Navigator.pushNamed(context, '/notifications');
             },
@@ -192,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CircleAvatar(
-                      radius: 30.r, // Responsive radius
+                      radius: 30,
                       backgroundColor: Colors.white,
                       backgroundImage: user?.imageUrl.isNotEmpty == true
                           ? NetworkImage(user!.imageUrl)
@@ -204,18 +206,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                   : 'U',
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
-                                fontSize: 24.sp, // Responsive font size
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
                             )
                           : null,
                     ),
-                    SizedBox(height: 8.h), // Responsive height
+                    SizedBox(height: 8),
                     Text(
                       user?.name ?? 'User',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18.sp, // Responsive font size
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -223,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       user?.email ?? '',
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 14.sp, // Responsive font size
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -231,42 +233,40 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home_outlined,
-                  size: 24.sp), // Responsive icon size
-              title: Text('Home',
-                  style: TextStyle(fontSize: 16.sp)), // Responsive font size
+              leading: Icon(Icons.home_outlined, size: 24),
+              title: Text('Home', style: TextStyle(fontSize: 16)),
               selected: true,
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              leading: Icon(Icons.bloodtype_outlined, size: 24.sp),
-              title: Text('Donations', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.bloodtype_outlined, size: 24),
+              title: Text('Donations', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/donation');
               },
             ),
             ListTile(
-              leading: Icon(Icons.volunteer_activism_outlined, size: 24.sp),
-              title: Text('Blood Requests', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.volunteer_activism_outlined, size: 24),
+              title: Text('Blood Requests', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/requests');
               },
             ),
             ListTile(
-              leading: Icon(Icons.favorite_outline, size: 24.sp),
-              title: Text('Health', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.favorite_outline, size: 24),
+              title: Text('Health', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/health');
               },
             ),
             ListTile(
-              leading: Icon(Icons.info_outline, size: 24.sp),
-              title: Text('Blood Info', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.info_outline, size: 24),
+              title: Text('Blood Info', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -277,9 +277,8 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.check_circle_outline, size: 24.sp),
-              title:
-                  Text('Accepted Requests', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.check_circle_outline, size: 24),
+              title: Text('Accepted Requests', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -290,8 +289,8 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.person_outline, size: 24.sp),
-              title: Text('Profile', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.person_outline, size: 24),
+              title: Text('Profile', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/profile');
@@ -299,19 +298,20 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: NotificationBadge(
-                child: Icon(Icons.notifications_outlined,
-                    size: 24.sp), // Responsive icon size
+                badgeColor: Colors.red,
+                badgeTextColor: Colors.white,
+                badgeSize: 12.0,
+                child: Icon(Icons.notifications_outlined, size: 24),
               ),
-              title: Text('Notifications', style: TextStyle(fontSize: 16.sp)),
+              title: Text('Notifications', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/notifications');
               },
             ),
             ListTile(
-              leading: Icon(Icons.map_outlined, size: 24.sp),
-              title:
-                  Text('Blood Centers Map', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.map_outlined, size: 24),
+              title: Text('Blood Centers Map', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -321,8 +321,8 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.business_outlined, size: 24.sp),
-              title: Text('About Us', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.business_outlined, size: 24),
+              title: Text('About Us', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -332,18 +332,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            Divider(height: 1.h), // Responsive height
+            Divider(height: 1),
             ListTile(
-              leading: Icon(Icons.settings_outlined, size: 24.sp),
-              title: Text('Settings', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.settings_outlined, size: 24),
+              title: Text('Settings', style: TextStyle(fontSize: 16)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/settings');
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout, size: 24.sp),
-              title: Text('Logout', style: TextStyle(fontSize: 16.sp)),
+              leading: Icon(Icons.logout, size: 24),
+              title: Text('Logout', style: TextStyle(fontSize: 16)),
               onTap: () async {
                 await authService.signOut();
                 if (context.mounted) {
@@ -357,34 +357,34 @@ class _HomeScreenState extends State<HomeScreen> {
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(16.w), // Responsive padding
+          padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Welcome message
               _buildWelcomeSection(),
-              SizedBox(height: 24.h), // Responsive height
+              SizedBox(height: 24),
 
               // Dashboard cards with real-time data
               _buildDashboardStats(context, user?.id),
-              SizedBox(height: 24.h), // Responsive height
+              SizedBox(height: 24),
 
               // Quick actions
               Text(
                 'Quick Actions',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20.sp, // Responsive font size
+                      fontSize: 20,
                     ),
               ),
-              SizedBox(height: 16.h), // Responsive height
+              SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildQuickAction(
                     context,
-                    icon: const Icon(Icons.add_circle_outline,
-                        color: Colors.red), // Standard Icon
+                    icon:
+                        const Icon(Icons.add_circle_outline, color: Colors.red),
                     label: 'Request',
                     onTap: () {
                       Navigator.of(context).pushNamed('/requests');
@@ -395,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(
                       Icons.location_on_outlined,
                       color: Colors.red,
-                    ), // Standard Icon
+                    ),
                     label: 'Map',
                     onTap: () {
                       Navigator.of(context).pushNamed('/map');
@@ -403,8 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   _buildQuickAction(
                     context,
-                    icon: const Icon(Icons.chat_outlined,
-                        color: Colors.red), // Standard Icon
+                    icon: const Icon(Icons.chat_outlined, color: Colors.red),
                     label: 'Support',
                     onTap: () {
                       Navigator.push(
@@ -417,12 +416,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildQuickAction(
                     context,
                     icon: const NotificationBadge(
-                      // Your custom badge widget
                       badgeColor: Colors.white,
-                      badgeSize: 10.0,
+                      badgeSize: 12.0,
                       padding: EdgeInsets.only(top: 0.0, right: 0.0),
                       badgeTextColor: Colors.black,
-                      // Your custom badge widget
                       child:
                           Icon(Icons.notifications_outlined, color: Colors.red),
                     ),
@@ -433,11 +430,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 24.h), // Responsive height
+              SizedBox(height: 24),
 
               // Recent blood requests
               _buildRecentRequests(),
-              SizedBox(height: 24.h), // Responsive height
+              SizedBox(height: 24),
 
               // Urgent blood requests
               Row(
@@ -447,22 +444,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Urgent Blood Requests',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20.sp, // Responsive font size
+                          fontSize: 20,
                         ),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/requests');
                     },
-                    child: Text('View All',
-                        style:
-                            TextStyle(fontSize: 14.sp)), // Responsive font size
+                    child: Text('View All', style: TextStyle(fontSize: 14)),
                   ),
                 ],
               ),
-              SizedBox(height: 8.h), // Responsive height
+              SizedBox(height: 8),
               _buildUrgentRequests(context),
-              SizedBox(height: 24.h), // Responsive height
+              SizedBox(height: 24),
             ],
           ),
         ),
@@ -475,10 +470,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = authService.currentUser;
 
     return Container(
-      padding: EdgeInsets.all(16.w), // Responsive padding
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16.r), // Responsive border radius
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,7 +481,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: [
               CircleAvatar(
-                radius: 30.r, // Responsive radius
+                radius: 30,
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 backgroundImage: user?.imageUrl.isNotEmpty == true
                     ? NetworkImage(user!.imageUrl)
@@ -496,13 +491,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 24.sp, // Responsive font size
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       )
                     : null,
               ),
-              SizedBox(width: 16.w), // Responsive width
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -511,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'Welcome, ${user != null ? _userName : 'Guest'}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20.sp, // Responsive font size
+                            fontSize: 20,
                           ),
                     ),
                     if (user != null && _bloodType.isNotEmpty)
@@ -521,7 +516,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16.sp, // Responsive font size
+                                  fontSize: 16,
                                 ),
                       ),
                   ],
@@ -529,25 +524,24 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          SizedBox(height: 16.h), // Responsive height
+          SizedBox(height: 16),
           Text(
             'Thank you for being a part of our blood donation community. Together, we can save lives!',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize: 16.sp, // Responsive font size
+                  fontSize: 16,
                 ),
           ),
           if (user == null) ...[
-            SizedBox(height: 16.h), // Responsive height
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pushNamed('/login');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
-                minimumSize: Size(double.infinity, 50.h), // Responsive height
+                minimumSize: Size(double.infinity, 50),
               ),
-              child: Text('Sign In / Register',
-                  style: TextStyle(fontSize: 16.sp)), // Responsive font size
+              child: Text('Sign In / Register', style: TextStyle(fontSize: 16)),
             ),
           ],
         ],
@@ -566,26 +560,24 @@ class _HomeScreenState extends State<HomeScreen> {
               'Recent Requests',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20.sp, // Responsive font size
+                    fontSize: 20,
                   ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pushNamed('/requests');
               },
-              child: Text('View All',
-                  style: TextStyle(fontSize: 14.sp)), // Responsive font size
+              child: Text('View All', style: TextStyle(fontSize: 14)),
             ),
           ],
         ),
-        SizedBox(height: 16.h), // Responsive height
+        SizedBox(height: 16),
         _recentRequests.isEmpty
             ? Container(
-                padding: EdgeInsets.all(24.w), // Responsive padding
+                padding: EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.1),
-                  borderRadius:
-                      BorderRadius.circular(12.r), // Responsive border radius
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
                   child: Column(
@@ -593,25 +585,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Icon(
                         Icons.bloodtype_outlined,
-                        size: 48.sp, // Responsive icon size
+                        size: 48,
                         color: Colors.grey.shade400,
                       ),
-                      SizedBox(height: 16.h), // Responsive height
+                      SizedBox(height: 16),
                       Text(
                         'No blood requests',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: Colors.grey.shade700,
-                                  fontSize: 16.sp, // Responsive font size
+                                  fontSize: 16,
                                 ),
                       ),
-                      SizedBox(height: 8.h), // Responsive height
+                      SizedBox(height: 8),
                       Text(
                         'There are no active blood requests at the moment',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Colors.grey.shade600,
-                              fontSize: 14.sp, // Responsive font size
+                              fontSize: 14,
                             ),
                       ),
                     ],
@@ -627,8 +619,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   final postedTime = _getTimeAgo(request.createdAt);
 
                   return Padding(
-                    padding:
-                        EdgeInsets.only(bottom: 12.h), // Responsive padding
+                    padding: EdgeInsets.only(bottom: 12),
                     child: GestureDetector(
                       onTap: () {
                         _showRequestDetailsDialog(request);
@@ -652,7 +643,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildDashboardStats(BuildContext context, String? userId) {
     if (_isLoadingStats) {
       return SizedBox(
-        height: 100.h, // Responsive height
+        height: 100,
         child: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -674,7 +665,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ),
-        SizedBox(width: 16.w), // Responsive width
+        SizedBox(width: 16),
         Expanded(
           child: DashboardCard(
             title: 'Lives\nSaved',
@@ -704,7 +695,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ),
-        SizedBox(width: 16.w), // Responsive width
+        SizedBox(width: 16),
         Expanded(
           child: DashboardCard(
             title: 'Lives\nSaved',
@@ -725,49 +716,48 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Your Impact',
-            style: TextStyle(fontSize: 20.sp)), // Responsive font size
+        title: Text('Your Impact', style: TextStyle(fontSize: 20)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.favorite,
-              size: 64.sp, // Responsive icon size
+              size: 64,
               color: Colors.red,
             ),
-            SizedBox(height: 16.h), // Responsive height
+            SizedBox(height: 16),
             Text(
               'You have potentially saved',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: 16.sp, // Responsive font size
+                    fontSize: 16,
                   ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8.h), // Responsive height
+            SizedBox(height: 8),
             Text(
               '$_livesSaved lives',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: Colors.red,
                     fontWeight: FontWeight.bold,
-                    fontSize: 32.sp, // Responsive font size
+                    fontSize: 32,
                   ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16.h), // Responsive height
+            SizedBox(height: 16),
             Text(
               'Through $_totalDonations donations',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 14.sp, // Responsive font size
+                    fontSize: 14,
                   ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16.h), // Responsive height
+            SizedBox(height: 16),
             Text(
               'Every donation counts! Thank you for being a hero.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontStyle: FontStyle.italic,
                     color: Colors.green,
-                    fontSize: 14.sp, // Responsive font size
+                    fontSize: 14,
                   ),
               textAlign: TextAlign.center,
             ),
@@ -776,16 +766,14 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close',
-                style: TextStyle(fontSize: 14.sp)), // Responsive font size
+            child: Text('Close', style: TextStyle(fontSize: 14)),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.of(context).pushNamed('/donation');
             },
-            child: Text('View History',
-                style: TextStyle(fontSize: 14.sp)), // Responsive font size
+            child: Text('View History', style: TextStyle(fontSize: 14)),
           ),
         ],
       ),
@@ -795,32 +783,32 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildUrgentRequests(BuildContext context) {
     if (_urgentRequests.isEmpty) {
       return Card(
-        elevation: 2.w, // Responsive elevation
+        elevation: 2,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.r), // Responsive border radius
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: EdgeInsets.all(16.w), // Responsive padding
+          padding: EdgeInsets.all(16),
           child: Column(
             children: [
               Icon(
                 Icons.volunteer_activism_outlined,
-                size: 48.sp, // Responsive icon size
+                size: 48,
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
               ),
-              SizedBox(height: 16.h), // Responsive height
+              SizedBox(height: 16),
               Text(
                 'No urgent requests',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 16.sp, // Responsive font size
+                      fontSize: 16,
                     ),
               ),
-              SizedBox(height: 8.h), // Responsive height
+              SizedBox(height: 8),
               Text(
                 'There are no urgent blood requests at the moment',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 14.sp, // Responsive font size
+                      fontSize: 14,
                     ),
               ),
             ],
@@ -834,7 +822,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final postedTime = _getTimeAgo(request.createdAt);
 
         return Padding(
-          padding: EdgeInsets.only(bottom: 12.h), // Responsive padding
+          padding: EdgeInsets.only(bottom: 12),
           child: GestureDetector(
             onTap: () {
               _showRequestDetailsDialog(request);
@@ -854,44 +842,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildQuickAction(
     BuildContext context, {
-    required Widget icon, // This accepts Icon or NotificationBadge
+    required Widget icon,
     required String label,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r), // Responsive border radius
+      borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: EdgeInsets.all(8.0.r), // Responsive padding/radius
+        padding: EdgeInsets.all(8.0),
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(
-                  12.r), // Responsive padding/radius inside the circle
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withOpacity(0.1), // Background color for the circle
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child:
-                  icon, // The icon (or NotificationBadge) is the child of this circular container
+              child: icon,
             ),
-            // The SizedBox and Text should be OUTSIDE the circular Container,
-            // as direct children of the main Column.
-            SizedBox(
-                height: 8
-                    .h), // Responsive vertical space between icon circle and label
-
+            SizedBox(height: 8),
             Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 14.sp, // Responsive font size
+                    fontSize: 14,
                   ),
             ),
-            // Remove the duplicate Text(label) and SizedBox(width: 10.0, height: 20.0)
-            // that were incorrectly placed inside the Container.
           ],
         ),
       ),
@@ -913,8 +889,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Request Details',
-            style: TextStyle(fontSize: 20.sp)), // Responsive font size
+        title: Text('Request Details', style: TextStyle(fontSize: 20)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -922,8 +897,8 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Center(
                 child: Container(
-                  width: 80.w, // Responsive width
-                  height: 80.h, // Responsive height
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     color:
                         Theme.of(context).colorScheme.primary.withOpacity(0.1),
@@ -934,14 +909,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       request.bloodGroup,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
-                        fontSize: 28.sp, // Responsive font size
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 16.h), // Responsive height
+              SizedBox(height: 16),
               _buildDetailItem(context, 'Patient Name', request.patientName),
               _buildDetailItem(context, 'Hospital', request.hospital),
               _buildDetailItem(context, 'Urgency', request.urgency,
@@ -959,19 +934,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Theme.of(context).colorScheme.primary
                       : Colors.grey),
               if (request.additionalInfo.isNotEmpty) ...[
-                SizedBox(height: 8.h), // Responsive height
+                SizedBox(height: 8),
                 Text(
                   'Additional Information:',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14.sp, // Responsive font size
+                        fontSize: 14,
                       ),
                 ),
-                SizedBox(height: 4.h), // Responsive height
+                SizedBox(height: 4),
                 Text(
                   request.additionalInfo,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 14.sp, // Responsive font size
+                        fontSize: 14,
                       ),
                 ),
               ],
@@ -981,8 +956,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close',
-                style: TextStyle(fontSize: 14.sp)), // Responsive font size
+            child: Text('Close', style: TextStyle(fontSize: 14)),
           ),
           // Show accept button only if user is logged in and hasn't responded
           if (currentUser != null && !hasResponded && request.status == 'open')
@@ -996,7 +970,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Text(
                 'Accept Request',
-                style: TextStyle(fontSize: 14.sp), // Responsive font size
+                style: TextStyle(fontSize: 14),
               ),
             ),
         ],
@@ -1007,17 +981,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildDetailItem(BuildContext context, String label, String value,
       {Color? valueColor}) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h), // Responsive padding
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120.w, // Responsive width
+            width: 120,
             child: Text(
               '$label:',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14.sp, // Responsive font size
+                    fontSize: 14,
                   ),
             ),
           ),
@@ -1026,7 +1000,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: valueColor,
-                    fontSize: 14.sp, // Responsive font size
+                    fontSize: 14,
                   ),
             ),
           ),
@@ -1041,8 +1015,11 @@ class _HomeScreenState extends State<HomeScreen> {
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('You must be logged in to accept a request',
-                  style: TextStyle(fontSize: 14.sp))), // Responsive font size
+            content: Text(
+              'You must be logged in to accept a request',
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
         );
         return;
       }
@@ -1051,7 +1028,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!_firebaseService.canUserDonate(user.lastDonation)) {
         final daysUntil =
             _firebaseService.getDaysUntilCanDonate(user.lastDonation);
-        showDialog(
+        await showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: const Row(
@@ -1118,13 +1095,11 @@ class _HomeScreenState extends State<HomeScreen> {
           content: Row(
             children: [
               SizedBox(
-                  width: 24.w,
-                  height: 24.h,
-                  child:
-                      const CircularProgressIndicator()), // Responsive size for indicator
-              SizedBox(width: 16.w), // Responsive width
-              Text('Accepting request...',
-                  style: TextStyle(fontSize: 14.sp)), // Responsive font size
+                  width: 24,
+                  height: 24,
+                  child: const CircularProgressIndicator()),
+              SizedBox(width: 16),
+              Text('Accepting request...', style: TextStyle(fontSize: 14)),
             ],
           ),
         ),
@@ -1163,11 +1138,9 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context) => AlertDialog(
             title: Row(
               children: [
-                Icon(Icons.check_circle,
-                    color: Colors.green, size: 24.sp), // Responsive icon size
-                SizedBox(width: 8.w), // Responsive width
-                Text('Request Accepted',
-                    style: TextStyle(fontSize: 20.sp)), // Responsive font size
+                Icon(Icons.check_circle, color: Colors.green, size: 24),
+                SizedBox(width: 8),
+                Text('Request Accepted', style: TextStyle(fontSize: 20)),
               ],
             ),
             content: Column(
@@ -1175,14 +1148,13 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('You have successfully accepted this blood request!',
-                    style: TextStyle(fontSize: 14.sp)), // Responsive font size
-                SizedBox(height: 16.h), // Responsive height
+                    style: TextStyle(fontSize: 14)),
+                SizedBox(height: 16),
                 Container(
-                  padding: EdgeInsets.all(12.w), // Responsive padding
+                  padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50,
-                    borderRadius:
-                        BorderRadius.circular(8.r), // Responsive border radius
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1190,46 +1162,38 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         'Contact Information:',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.sp), // Responsive font size
+                            fontWeight: FontWeight.bold, fontSize: 14),
                       ),
-                      SizedBox(height: 8.h), // Responsive height
+                      SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.phone,
-                              size: 20.sp,
-                              color: Colors.green), // Responsive icon size
-                          SizedBox(width: 8.w), // Responsive width
+                          Icon(Icons.phone, size: 20, color: Colors.green),
+                          SizedBox(width: 8),
                           Text('${request.contactNumber}',
-                              style: TextStyle(
-                                  fontSize: 14.sp)), // Responsive font size
+                              style: TextStyle(fontSize: 14)),
                         ],
                       ),
-                      SizedBox(height: 4.h), // Responsive height
+                      SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.person,
-                              size: 20.sp,
-                              color: Colors.blue), // Responsive icon size
-                          SizedBox(width: 8.w), // Responsive width
+                          Icon(Icons.person, size: 20, color: Colors.blue),
+                          SizedBox(width: 8),
                           Text('${request.requesterName}',
-                              style: TextStyle(
-                                  fontSize: 14.sp)), // Responsive font size
+                              style: TextStyle(fontSize: 14)),
                         ],
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 16.h), // Responsive height
+                SizedBox(height: 16),
                 Text('Would you like to contact the requester now?',
-                    style: TextStyle(fontSize: 14.sp)), // Responsive font size
+                    style: TextStyle(fontSize: 14)),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Later',
-                    style: TextStyle(fontSize: 14.sp)), // Responsive font size
+                child: Text('Later', style: TextStyle(fontSize: 14)),
               ),
               ElevatedButton.icon(
                 onPressed: () {
@@ -1239,12 +1203,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                 ),
-                icon: Icon(Icons.call,
-                    color: Colors.white, size: 20.sp), // Responsive icon size
+                icon: Icon(Icons.call, color: Colors.white, size: 20),
                 label: Text('Call Now',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp)), // Responsive font size
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
               ),
             ],
           ),
@@ -1259,7 +1220,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error accepting request: $e',
-              style: TextStyle(fontSize: 14.sp)), // Responsive font size
+              style: TextStyle(fontSize: 14)),
           backgroundColor: Colors.red,
         ),
       );

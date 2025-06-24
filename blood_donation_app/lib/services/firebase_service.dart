@@ -196,16 +196,12 @@ class FirebaseService {
 
   Future<Map<String, int>> getUserDonationStats(String userId) async {
     try {
-      final donations =
-          await getUserDonations(userId); // Your method to get all donations
-
+      final donations = await getUserDonations(userId);
       final totalDonations = donations.length; // Number of donations
       final totalUnits = donations.fold<int>(
           0, (sum, donation) => sum + donation.units); // Sum all units donated
-      final livesSaved = totalUnits * 1; // 1 unit saves 1 life
-      final points =
-          totalUnits * 10; // Optional points system (10 points per unit)
-
+      final livesSaved = totalUnits; // 1 unit = 1 life saved
+      final points = totalUnits * 10; // 10 points per unit
       return {
         'totalDonations': totalDonations,
         'totalUnits': totalUnits,

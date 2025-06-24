@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import '../../services/firebase_service.dart'; // Ensure this path is correct
 
 class SupportScreen extends StatefulWidget {
@@ -25,11 +24,9 @@ class _SupportScreenState extends State<SupportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ScreenUtil is initialized at the MaterialApp level, so we can use its extensions directly.
     return Scaffold(
       appBar: AppBar(
-        title: Text('Support',
-            style: TextStyle(fontSize: 20.sp)), // Responsive text size
+        title: Text('Support', style: TextStyle(fontSize: 20)),
         elevation: 0,
       ),
       body: Column(
@@ -38,8 +35,7 @@ class _SupportScreenState extends State<SupportScreen> {
           Container(
             color: Theme.of(context).colorScheme.primary,
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 16.w, vertical: 8.h), // Responsive padding
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   _buildTabButton('FAQs', 0),
@@ -68,7 +64,7 @@ class _SupportScreenState extends State<SupportScreen> {
     final isSelected = _selectedTab == index;
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4.w), // Responsive padding
+        padding: EdgeInsets.symmetric(horizontal: 4),
         child: ElevatedButton(
           onPressed: () {
             setState(() {
@@ -82,18 +78,16 @@ class _SupportScreenState extends State<SupportScreen> {
             foregroundColor: isSelected
                 ? Theme.of(context).colorScheme.primary
                 : Colors.white,
-            elevation: isSelected ? 2.w : 0, // Responsive elevation
-            padding: EdgeInsets.symmetric(vertical: 12.h), // Responsive padding
+            elevation: isSelected ? 2 : 0,
+            padding: EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(8.r), // Responsive border radius
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
           child: Text(
             title,
             style: TextStyle(
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              fontSize: 14.sp, // Responsive text size
             ),
           ),
         ),
@@ -121,7 +115,7 @@ class _SupportScreenState extends State<SupportScreen> {
         }
 
         return ListView.builder(
-          padding: EdgeInsets.all(16.w), // Responsive padding
+          padding: EdgeInsets.all(16),
           itemCount: faqs.length,
           itemBuilder: (context, index) {
             final faq = faqs[index];
@@ -137,7 +131,7 @@ class _SupportScreenState extends State<SupportScreen> {
 
   Widget _buildDefaultFaqs() {
     return ListView(
-      padding: EdgeInsets.all(16.w), // Responsive padding
+      padding: EdgeInsets.all(16),
       children: [
         _buildFaqItem(
           question: 'How often can I donate blood?',
@@ -180,26 +174,24 @@ class _SupportScreenState extends State<SupportScreen> {
 
   Widget _buildFaqItem({required String question, required String answer}) {
     return Card(
-      margin: EdgeInsets.only(bottom: 16.h), // Responsive margin
+      margin: EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r), // Responsive border radius
+        borderRadius: BorderRadius.circular(12),
       ),
       child: ExpansionTile(
         title: Text(
           question,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 16.sp, // Responsive text size
           ),
         ),
         children: [
           Padding(
-            padding: EdgeInsets.all(16.w), // Responsive padding
+            padding: EdgeInsets.all(16),
             child: Text(
               answer,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-                fontSize: 14.sp, // Responsive text size
               ),
             ),
           ),
@@ -212,10 +204,10 @@ class _SupportScreenState extends State<SupportScreen> {
     // Define a common minimum width for the action buttons
     // You might need to adjust this value based on your longest text and desired look.
     const double minButtonWidth = 120.0; // Base width from design
-    final double responsiveButtonWidth = minButtonWidth.w; // Make it responsive
+    final double responsiveButtonWidth = minButtonWidth; // Make it responsive
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w), // Responsive padding
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -223,10 +215,9 @@ class _SupportScreenState extends State<SupportScreen> {
             'Contact Us',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 22.sp, // Responsive text size
                 ),
           ),
-          SizedBox(height: 8.h), // Responsive height
+          SizedBox(height: 8), // Responsive height
           Text(
             'We\'re here to help! Choose your preferred method of contact below.',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -234,10 +225,9 @@ class _SupportScreenState extends State<SupportScreen> {
                       .colorScheme
                       .onBackground
                       .withOpacity(0.7),
-                  fontSize: 16.sp, // Responsive text size
                 ),
           ),
-          SizedBox(height: 24.h), // Responsive height
+          SizedBox(height: 24),
 
           // Contact methods
           _buildContactMethod(
@@ -248,7 +238,7 @@ class _SupportScreenState extends State<SupportScreen> {
             onTap: () => _launchUrl('tel:+1234567890'),
             buttonWidth: responsiveButtonWidth, // Pass responsive width
           ),
-          SizedBox(height: 16.h), // Responsive height
+          SizedBox(height: 16),
           _buildContactMethod(
             icon: Icons.email,
             title: 'Email Us',
@@ -257,7 +247,7 @@ class _SupportScreenState extends State<SupportScreen> {
             onTap: () => _launchUrl('mailto:support@bloodconnect.com'),
             buttonWidth: responsiveButtonWidth, // Pass responsive width
           ),
-          SizedBox(height: 16.h), // Responsive height
+          SizedBox(height: 16), // Responsive height
           _buildContactMethod(
             icon: Icons.chat,
             title: 'Live Chat',
@@ -268,15 +258,14 @@ class _SupportScreenState extends State<SupportScreen> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text('Coming Soon', style: TextStyle(fontSize: 18.sp)),
+                  title: Text('Coming Soon', style: TextStyle(fontSize: 18)),
                   content: Text(
                     'Live chat support will be available in the next update. Please use email or phone support for now.',
-                    style: TextStyle(fontSize: 14.sp),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text('OK', style: TextStyle(fontSize: 14.sp)),
+                      child: Text('OK'),
                     ),
                   ],
                 ),
@@ -284,7 +273,7 @@ class _SupportScreenState extends State<SupportScreen> {
             },
             buttonWidth: responsiveButtonWidth, // Pass responsive width
           ),
-          SizedBox(height: 16.h), // Responsive height
+          SizedBox(height: 16), // Responsive height
           _buildContactMethod(
             icon: Icons.location_on,
             title: 'Visit Us',
@@ -296,19 +285,18 @@ class _SupportScreenState extends State<SupportScreen> {
             buttonWidth: responsiveButtonWidth, // Pass responsive width
           ),
 
-          SizedBox(height: 32.h), // Responsive height
+          SizedBox(height: 32), // Responsive height
           const Divider(),
-          SizedBox(height: 16.h), // Responsive height
+          SizedBox(height: 16), // Responsive height
 
           // Social media
           Text(
             'Connect With Us',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 20.sp, // Responsive text size
                 ),
           ),
-          SizedBox(height: 16.h), // Responsive height
+          SizedBox(height: 16), // Responsive height
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -355,14 +343,14 @@ class _SupportScreenState extends State<SupportScreen> {
   }) {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r), // Responsive border radius
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16.w), // Responsive padding
+        padding: EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(12.r), // Responsive padding
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
@@ -370,10 +358,10 @@ class _SupportScreenState extends State<SupportScreen> {
               child: Icon(
                 icon,
                 color: Theme.of(context).colorScheme.primary,
-                size: 28.sp, // Responsive icon size
+                size: 28,
               ),
             ),
-            SizedBox(width: 16.w), // Responsive width
+            SizedBox(width: 16), // Responsive width
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,10 +370,9 @@ class _SupportScreenState extends State<SupportScreen> {
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16.sp, // Responsive text size
                         ),
                   ),
-                  SizedBox(height: 4.h), // Responsive height
+                  SizedBox(height: 4), // Responsive height
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -393,13 +380,12 @@ class _SupportScreenState extends State<SupportScreen> {
                               .colorScheme
                               .onBackground
                               .withOpacity(0.7),
-                          fontSize: 14.sp, // Responsive text size
                         ),
                   ),
                 ],
               ),
             ),
-            SizedBox(width: 16.w), // Responsive width
+            SizedBox(width: 16), // Responsive width
             SizedBox(
               width: buttonWidth, // Use the passed responsive width
               child: ElevatedButton(
@@ -408,18 +394,16 @@ class _SupportScreenState extends State<SupportScreen> {
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
-                    horizontal: 16.w, // Responsive padding
-                    vertical: 12.h, // Responsive padding
+                    horizontal: 16, // Responsive padding
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(8.r), // Responsive border radius
+                        BorderRadius.circular(8), // Responsive border radius
                   ),
                 ),
                 child: Text(
                   action,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14.sp), // Responsive text size
                 ),
               ),
             ),
@@ -436,23 +420,22 @@ class _SupportScreenState extends State<SupportScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8.r), // Responsive border radius
+      borderRadius: BorderRadius.circular(8), // Responsive border radius
       child: Padding(
-        padding: EdgeInsets.all(12.r), // Responsive padding
+        padding: EdgeInsets.all(12), // Responsive padding
         child: Column(
           children: [
             Icon(
               icon,
               color: Theme.of(context).colorScheme.primary,
-              size: 32.sp, // Responsive icon size
+              size: 32, // Responsive icon size
             ),
-            SizedBox(height: 8.h), // Responsive height
+            SizedBox(height: 8), // Responsive height
             Text(
               label,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
-                fontSize: 14.sp, // Responsive text size
               ),
             ),
           ],

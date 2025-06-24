@@ -7,6 +7,7 @@ import '../../services/auth_service.dart';
 import '../../services/firebase_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
+import '../../widgets/not_signed_in_message.dart';
 
 class RequestsScreen extends StatefulWidget {
   const RequestsScreen({super.key});
@@ -585,33 +586,8 @@ class _RequestsScreenState extends State<RequestsScreen>
     final currentUser = Provider.of<AuthService>(context).currentUser;
 
     if (currentUser == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.account_circle_outlined,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Not signed in',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Please sign in to view blood requests',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onBackground
-                        .withOpacity(0.7),
-                  ),
-            ),
-          ],
-        ),
+      return const NotSignedInMessage(
+        message: 'Please sign in to view blood requests',
       );
     }
 
@@ -724,33 +700,8 @@ class _RequestsScreenState extends State<RequestsScreen>
   Widget _buildMyRequestsTab() {
     final currentUser = Provider.of<AuthService>(context).currentUser;
     if (currentUser == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.account_circle_outlined,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Not signed in',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Please sign in to view your blood requests',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onBackground
-                        .withOpacity(0.7),
-                  ),
-            ),
-          ],
-        ),
+      return const NotSignedInMessage(
+        message: 'Please sign in to view your blood requests',
       );
     }
 

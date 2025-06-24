@@ -41,29 +41,16 @@ class NotificationBadge extends StatelessWidget {
                     minWidth: badgeSize,
                     minHeight: badgeSize,
                   ),
-                  child: unreadCount > 9
-                      ? Center(
-                          child: Text(
-                            '9+',
-                            style: TextStyle(
-                              color: badgeTextColor,
-                              fontSize: badgeSize * 0.7,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )
-                      : unreadCount > 1
-                          ? Center(
-                              child: Text(
-                                '$unreadCount',
-                                style: TextStyle(
-                                  color: badgeTextColor,
-                                  fontSize: badgeSize * 0.7,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
+                  child: Center(
+                    child: Text(
+                      unreadCount > 9 ? '9+' : '$unreadCount',
+                      style: TextStyle(
+                        color: badgeTextColor,
+                        fontSize: badgeSize * 0.7,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
           ],

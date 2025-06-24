@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../models/user_model.dart';
 import '../../services/firebase_service.dart';
 import '../../services/donation_service.dart';
-import '../../utils/responsive_utils.dart';
-import '../../widgets/responsive_base_widget.dart';
 
 class DonorsScreen extends StatefulWidget {
   const DonorsScreen({super.key});
@@ -81,7 +78,7 @@ class _DonorsScreenState extends State<DonorsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading donors: $e'),
-            duration: ResponsiveUtils.getResponsiveSnackBarDuration(context),
+            duration: Duration(seconds: 16),
           ),
         );
       }
@@ -208,369 +205,275 @@ class _DonorsScreenState extends State<DonorsScreen> {
   Widget build(BuildContext context) {
     final filteredDonors = _getFilteredDonors();
 
-    return ResponsiveBaseWidget(
-      appBar: AppBar(
-        title: Text(
-          'Blood Donors',
-          style: TextStyle(
-              fontSize: ResponsiveUtils.getResponsiveFontSize(context, 20.0)),
+    return Column(
+      children: [
+        Container(
+          color: Colors.grey[50],
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search by name or city',
+                  hintStyle: const TextStyle(fontSize: 14.0),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    size: 20.0,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 16.0,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 12.0),
+              SizedBox(
+                height: 40.0,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: _bloodGroups.map((group) {
+                    final isSelected = _selectedBloodGroup == group;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: FilterChip(
+                        label: Text(
+                          group,
+                          style: const TextStyle(fontSize: 12.0),
+                        ),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedBloodGroup = group;
+                          });
+                        },
+                        backgroundColor: Colors.white,
+                        selectedColor: Colors.red.withOpacity(0.2),
+                        checkmarkColor: Colors.red,
+                        side: BorderSide(
+                          color: isSelected ? Colors.red : Colors.grey[300]!,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
         ),
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.refresh,
-              size: ResponsiveUtils.getResponsiveIconSize(context, 24.0),
-            ),
-            onPressed: _loadDonors,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            color: Colors.grey[50],
-            padding: ResponsiveUtils.getResponsivePadding(context,
-                horizontal: 16.0, vertical: 16.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search by name or city',
-                    hintStyle: TextStyle(
-                        fontSize: ResponsiveUtils.getResponsiveFontSize(
-                            context, 14.0)),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      size:
-                          ResponsiveUtils.getResponsiveIconSize(context, 20.0),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: ResponsiveUtils.getResponsiveBorderRadius(
-                          context, 10.0),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical:
-                          ResponsiveUtils.getResponsiveSpacing(context, 12.0),
-                      horizontal:
-                          ResponsiveUtils.getResponsiveSpacing(context, 16.0),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
+        Expanded(
+          child: _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3.0,
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                ),
-                SizedBox(
-                    height:
-                        ResponsiveUtils.getResponsiveSpacing(context, 12.0)),
-                SizedBox(
-                  height: ResponsiveUtils.getResponsiveSpacing(context, 40.0),
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: _bloodGroups.map((group) {
-                      final isSelected = _selectedBloodGroup == group;
-                      return Padding(
-                        padding: EdgeInsets.only(
-                            right: ResponsiveUtils.getResponsiveSpacing(
-                                context, 8.0)),
-                        child: FilterChip(
-                          label: Text(
-                            group,
+                )
+              : filteredDonors.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64.0,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16.0),
+                          Text(
+                            'No donors found',
                             style: TextStyle(
-                                fontSize: ResponsiveUtils.getResponsiveFontSize(
-                                    context, 12.0)),
+                              fontSize: 18.0,
+                              color: Colors.grey[600],
+                            ),
                           ),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedBloodGroup = group;
-                            });
-                          },
-                          backgroundColor: Colors.white,
-                          selectedColor: Colors.red.withOpacity(0.2),
-                          checkmarkColor: Colors.red,
-                          side: BorderSide(
-                            color: isSelected ? Colors.red : Colors.grey[300]!,
+                          const SizedBox(height: 8.0),
+                          Text(
+                            'Try adjusting your search or filters',
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              color: Colors.grey[500],
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: _isLoading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth:
-                          ResponsiveUtils.getResponsiveSpacing(context, 3.0),
-                    ),
-                  )
-                : filteredDonors.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: ResponsiveUtils.getResponsiveIconSize(
-                                  context, 64.0),
-                              color: Colors.grey[400],
-                            ),
-                            SizedBox(
-                                height: ResponsiveUtils.getResponsiveSpacing(
-                                    context, 16.0)),
-                            Text(
-                              'No donors found',
-                              style: TextStyle(
-                                fontSize: ResponsiveUtils.getResponsiveFontSize(
-                                    context, 18.0),
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            SizedBox(
-                                height: ResponsiveUtils.getResponsiveSpacing(
-                                    context, 8.0)),
-                            Text(
-                              'Try adjusting your search or filters',
-                              style: TextStyle(
-                                fontSize: ResponsiveUtils.getResponsiveFontSize(
-                                    context, 14.0),
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: filteredDonors.length,
-                        itemBuilder: (context, index) {
-                          final donor = filteredDonors[index];
-                          final canDonate = _donationService
-                              .isEligibleToDonate(donor.lastDonation);
-                          final daysUntilCanDonate = _donationService
-                              .getDaysUntilEligible(donor.lastDonation);
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredDonors.length,
+                      itemBuilder: (context, index) {
+                        final donor = filteredDonors[index];
+                        final canDonate = _donationService
+                            .isEligibleToDonate(donor.lastDonation);
+                        final daysUntilCanDonate = _donationService
+                            .getDaysUntilEligible(donor.lastDonation);
 
-                          return Card(
-                            margin: EdgeInsets.symmetric(
-                              horizontal: ResponsiveUtils.getResponsiveSpacing(
-                                  context, 16.0),
-                              vertical: ResponsiveUtils.getResponsiveSpacing(
-                                  context, 4.0),
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 4.0,
+                          ),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16.0),
+                            leading: CircleAvatar(
+                              radius: 25.0,
+                              backgroundImage: donor.imageUrl.isNotEmpty
+                                  ? NetworkImage(donor.imageUrl)
+                                  : null,
+                              backgroundColor: Colors.red.withOpacity(0.1),
+                              child: donor.imageUrl.isEmpty
+                                  ? Text(
+                                      donor.name.isNotEmpty
+                                          ? donor.name[0].toUpperCase()
+                                          : '?',
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
+                                      ),
+                                    )
+                                  : null,
                             ),
-                            elevation: 1,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  ResponsiveUtils.getResponsiveBorderRadius(
-                                      context, 12.0),
+                            title: Text(
+                              donor.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.0,
+                              ),
                             ),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.all(
-                                  ResponsiveUtils.getResponsiveSpacing(
-                                      context, 16.0)),
-                              leading: CircleAvatar(
-                                radius: ResponsiveUtils.getResponsiveSpacing(
-                                    context, 25.0),
-                                backgroundImage: donor.imageUrl.isNotEmpty
-                                    ? NetworkImage(donor.imageUrl)
-                                    : null,
-                                backgroundColor: Colors.red.withOpacity(0.1),
-                                child: donor.imageUrl.isEmpty
-                                    ? Text(
-                                        donor.name.isNotEmpty
-                                            ? donor.name[0].toUpperCase()
-                                            : '?',
-                                        style: TextStyle(
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4.0),
+                                Text(
+                                  '${donor.city}${donor.state.isNotEmpty ? ', ${donor.state}' : ''}',
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 8.0),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                        vertical: 4.0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.withOpacity(0.1),
+                                        borderRadius:
+                                            BorderRadius.circular(6.0),
+                                      ),
+                                      child: Text(
+                                        donor.bloodGroup,
+                                        style: const TextStyle(
                                           color: Colors.red,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: ResponsiveUtils
-                                              .getResponsiveFontSize(
-                                                  context, 18.0),
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                              title: Text(
-                                donor.name,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize:
-                                      ResponsiveUtils.getResponsiveFontSize(
-                                          context, 16.0),
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                      height:
-                                          ResponsiveUtils.getResponsiveSpacing(
-                                              context, 4.0)),
-                                  Text(
-                                    '${donor.city}${donor.state.isNotEmpty ? ', ${donor.state}' : ''}',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize:
-                                          ResponsiveUtils.getResponsiveFontSize(
-                                              context, 14.0),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                      height:
-                                          ResponsiveUtils.getResponsiveSpacing(
-                                              context, 8.0)),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: ResponsiveUtils
-                                              .getResponsiveSpacing(
-                                                  context, 8.0),
-                                          vertical: ResponsiveUtils
-                                              .getResponsiveSpacing(
-                                                  context, 4.0),
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.withOpacity(0.1),
-                                          borderRadius: ResponsiveUtils
-                                              .getResponsiveBorderRadius(
-                                                  context, 6.0),
-                                        ),
-                                        child: Text(
-                                          donor.bloodGroup,
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: ResponsiveUtils
-                                                .getResponsiveFontSize(
-                                                    context, 12.0),
-                                          ),
+                                          fontSize: 12.0,
                                         ),
                                       ),
-                                      SizedBox(
-                                          width: ResponsiveUtils
-                                              .getResponsiveSpacing(
-                                                  context, 8.0)),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: ResponsiveUtils
-                                              .getResponsiveSpacing(
-                                                  context, 8.0),
-                                          vertical: ResponsiveUtils
-                                              .getResponsiveSpacing(
-                                                  context, 4.0),
-                                        ),
-                                        decoration: BoxDecoration(
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                        vertical: 4.0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: canDonate
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.orange.withOpacity(0.1),
+                                        borderRadius:
+                                            BorderRadius.circular(6.0),
+                                      ),
+                                      child: Text(
+                                        canDonate
+                                            ? 'Available'
+                                            : 'Not Available',
+                                        style: TextStyle(
                                           color: canDonate
-                                              ? Colors.green.withOpacity(0.1)
-                                              : Colors.orange.withOpacity(0.1),
-                                          borderRadius: ResponsiveUtils
-                                              .getResponsiveBorderRadius(
-                                                  context, 6.0),
+                                              ? Colors.green
+                                              : Colors.orange,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12.0,
                                         ),
-                                        child: Text(
-                                          canDonate
-                                              ? 'Available'
-                                              : 'Not Available',
-                                          style: TextStyle(
-                                            color: canDonate
-                                                ? Colors.green
-                                                : Colors.orange,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: ResponsiveUtils
-                                                .getResponsiveFontSize(
-                                                    context, 12.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (donor.lastDonation != null) ...[
-                                    SizedBox(
-                                        height: ResponsiveUtils
-                                            .getResponsiveSpacing(
-                                                context, 4.0)),
-                                    Text(
-                                      'Last donation: ${_formatDate(donor.lastDonation!)}',
-                                      style: TextStyle(
-                                        fontSize: ResponsiveUtils
-                                            .getResponsiveFontSize(
-                                                context, 11.0),
-                                        color: Colors.grey[500],
-                                      ),
-                                    ),
-                                  ] else ...[
-                                    SizedBox(
-                                        height: ResponsiveUtils
-                                            .getResponsiveSpacing(
-                                                context, 4.0)),
-                                    Text(
-                                      'No previous donation recorded',
-                                      style: TextStyle(
-                                        fontSize: ResponsiveUtils
-                                            .getResponsiveFontSize(
-                                                context, 11.0),
-                                        color: Colors.grey[500],
                                       ),
                                     ),
                                   ],
-                                  if (!canDonate && daysUntilCanDonate > 0) ...[
-                                    SizedBox(
-                                        height: ResponsiveUtils
-                                            .getResponsiveSpacing(
-                                                context, 4.0)),
-                                    Text(
-                                      'Available in $daysUntilCanDonate days',
-                                      style: TextStyle(
-                                        color: Colors.grey[500],
-                                        fontSize: ResponsiveUtils
-                                            .getResponsiveFontSize(
-                                                context, 12.0),
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                              trailing: IconButton(
-                                icon: Icon(
-                                  Icons.phone,
-                                  size: ResponsiveUtils.getResponsiveIconSize(
-                                      context, 20.0),
-                                  color: Colors.red,
                                 ),
-                                onPressed: () =>
-                                    _showCallConfirmationDialog(donor),
-                              ),
-                              onTap: () {
-                                // Show donor details
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20),
+                                if (donor.lastDonation != null) ...[
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    'Last donation: ${_formatDate(donor.lastDonation!)}',
+                                    style: TextStyle(
+                                      fontSize: 11.0,
+                                      color: Colors.grey[500],
                                     ),
                                   ),
-                                  builder: (context) =>
-                                      _buildDonorDetails(donor),
-                                );
-                              },
+                                ] else ...[
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    'No previous donation recorded',
+                                    style: TextStyle(
+                                      fontSize: 11.0,
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                                if (!canDonate && daysUntilCanDonate > 0) ...[
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    'Available in $daysUntilCanDonate days',
+                                    style: TextStyle(
+                                      color: Colors.grey[500],
+                                      fontSize: 12.0,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
-                          );
-                        },
-                      ),
-          ),
-        ],
-      ),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                Icons.phone,
+                                size: 20.0,
+                                color: Colors.red,
+                              ),
+                              onPressed: () =>
+                                  _showCallConfirmationDialog(donor),
+                            ),
+                            onTap: () {
+                              // Show donor details
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20),
+                                  ),
+                                ),
+                                builder: (context) => _buildDonorDetails(donor),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+        ),
+      ],
     );
   }
 

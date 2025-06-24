@@ -9,6 +9,7 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/custom_dropdown.dart';
 import '../../widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
+import '../../widgets/not_signed_in_message.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -33,6 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _imageFile;
   bool _isLoading = false;
   int _totalDonations = 0;
+  int _points = 0;
   List<Map<String, dynamic>> _achievements = [];
 
   // Track which fields are being edited
@@ -147,33 +149,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final donations = await _firebaseService.getUserDonations(user.id!);
       final donationCount = donations.length;
 
-      // Define achievements based on donation count
-      final achievements = [
-        {
-          'title': 'First Time Donor',
-          'description': 'Completed your first blood donation',
-          'isUnlocked': donationCount >= 1,
-        },
-        {
-          'title': 'Regular Donor',
-          'description': 'Donated blood 5 times',
-          'isUnlocked': donationCount >= 5,
-        },
-        {
-          'title': 'Lifesaver',
-          'description': 'Donated blood 10 times',
-          'isUnlocked': donationCount >= 10,
-        },
-        {
-          'title': 'Blood Hero',
-          'description': 'Donated blood 25 times',
-          'isUnlocked': donationCount >= 25,
-        },
-      ];
-
       setState(() {
         _totalDonations = donationCount;
-        _achievements = achievements;
+        _points = donationCount * 10; // 10 points per donation
+        _achievements = [
+          {
+            'title': 'First Time Donor',
+            'description': 'Completed your first blood donation',
+            'isUnlocked': donationCount >= 1,
+          },
+          {
+            'title': 'Regular Donor',
+            'description': 'Donated blood 5 times',
+            'isUnlocked': donationCount >= 5,
+          },
+          {
+            'title': 'Lifesaver',
+            'description': 'Donated blood 10 times',
+            'isUnlocked': donationCount >= 10,
+          },
+          {
+            'title': 'Blood Hero',
+            'description': 'Donated blood 25 times',
+            'isUnlocked': donationCount >= 25,
+          },
+        ];
       });
     } catch (e) {
       debugPrint('Error loading achievements: $e');
@@ -296,31 +296,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         appBar: AppBar(
           title: const Text('Profile'),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.account_circle_outlined,
-                size: 64,
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-              ),
-              SizedBox(height: 16),
-              Text('Not signed in',
-                  style: Theme.of(context).textTheme.titleLarge),
-              SizedBox(height: 8),
-              Text(
-                'Please sign in to view your profile',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onBackground
-                          .withOpacity(0.7),
-                    ),
-              ),
-            ],
-          ),
+        body: const NotSignedInMessage(
+          message: 'Please sign in to view your profile',
         ),
       );
     }
@@ -452,13 +429,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildStatItem(
                             context,
                             icon: Icons.favorite,
-                            value: (_totalDonations * 3).toString(),
+                            value: _totalDonations.toString(),
                             label: 'Lives Saved',
                           ),
                           _buildStatItem(
                             context,
                             icon: Icons.star,
-                            value: (_totalDonations * 20).toString(),
+                            value: (_totalDonations * 10).toString(),
                             label: 'Points',
                           ),
                         ],
