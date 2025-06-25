@@ -458,7 +458,7 @@ class _RequestsScreenState extends State<RequestsScreen>
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
-                  _launchPhoneCall(contactNumber);
+                  _launchUrl('tel:${_formatPhoneNumber(contactNumber)}');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -506,18 +506,23 @@ class _RequestsScreenState extends State<RequestsScreen>
     }
   }
 
-  Future<void> _launchPhoneCall(String phoneNumber) async {
-    final Uri uri = Uri(scheme: 'tel', path: phoneNumber);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Could not launch phone call to $phoneNumber')),
-        );
+  Future<void> _launchUrl(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        throw Exception('Could not launch $url');
       }
+    } catch (e) {
+      print('Error launching URL: $e');
     }
+  }
+
+  String _formatPhoneNumber(String phone) {
+    if (phone.startsWith('+')) return phone; // already international
+    if (phone.startsWith('03')) {
+      return '+92${phone.substring(1)}'; // e.g., 0301 => +92301
+    }
+    return phone;
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -798,8 +803,10 @@ class _RequestsScreenState extends State<RequestsScreen>
             onViewDetailsPressed: () {
               _showRequestDetails(context, request);
             },
-            // Show responder count
             responderCount: request.responders.length,
+            onViewRespondersPressed: request.responders.isNotEmpty
+                ? () => _showResponders(request)
+                : null,
           );
         },
       ),
@@ -819,6 +826,7 @@ class _RequestsScreenState extends State<RequestsScreen>
     required bool isMyRequest,
     VoidCallback? onAcceptPressed,
     VoidCallback? onClosePressed,
+    VoidCallback? onViewRespondersPressed,
     required VoidCallback onViewDetailsPressed,
     int responderCount = 0,
   }) {
@@ -961,25 +969,44 @@ class _RequestsScreenState extends State<RequestsScreen>
                 ],
               ),
             ],
-            // Show responder count for my requests
+            // Show responder count for my requests with clickable option
             if (isMyRequest && responderCount > 0) ...[
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.people_outline,
-                    size: 20,
-                    color: Colors.grey,
+              InkWell(
+                onTap: onViewRespondersPressed,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Responders: $responderCount',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.people_outline,
+                        size: 20,
+                        color: Colors.green,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Responders: $responderCount',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 14,
+                        color: Colors.green,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ],
             const SizedBox(height: 16),
@@ -1512,5 +1539,80 @@ class _RequestsScreenState extends State<RequestsScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _showResponders(RequestModel request) async {
+    if (request.responders.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No responders yet')),
+      );
+      return;
+    }
+
+    try {
+      // Get responder details
+      final responderDetails =
+          await _firebaseService.getResponderDetails(request.responders);
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Responders (${request.responders.length})'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: responderDetails.length,
+                itemBuilder: (context, index) {
+                  final responder = responderDetails[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.1),
+                        child: Text(
+                          responder['name']?.substring(0, 1).toUpperCase() ??
+                              'U',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(responder['name'] ?? 'Unknown'),
+                      subtitle: Text(responder['phone'] ?? 'No phone'),
+                      trailing: responder['phone'] != null
+                          ? IconButton(
+                              icon: const Icon(Icons.call, color: Colors.green),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                _launchUrl(
+                                    'tel:${_formatPhoneNumber(responder['phone'])}');
+                              },
+                            )
+                          : null,
+                    ),
+                  );
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading responders: $e')),
+      );
+    }
   }
 }

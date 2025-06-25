@@ -728,7 +728,7 @@ class FirebaseService {
   // Health Data Management
   Future<Map<String, dynamic>?> getHealthData(String userId) async {
     try {
-      final doc = await _firestore.collection('health_data').doc(userId).get();
+      final doc = await _firestore.collection('healthData').doc(userId).get();
       if (doc.exists) {
         return {...doc.data()!, 'id': doc.id};
       }
@@ -743,7 +743,7 @@ class FirebaseService {
       String userId, Map<String, dynamic> healthData) async {
     try {
       healthData['updated_at'] = FieldValue.serverTimestamp();
-      await _firestore.collection('health_data').doc(userId).set(
+      await _firestore.collection('healthData').doc(userId).set(
             healthData,
             SetOptions(merge: true),
           );
@@ -790,7 +790,7 @@ class FirebaseService {
 
       // Delete related data
       await _firestore.collection('user_settings').doc(userId).delete();
-      await _firestore.collection('health_data').doc(userId).delete();
+      await _firestore.collection('healthData').doc(userId).delete();
       await _firestore.collection('device_tokens').doc(userId).delete();
 
       // Delete user's donations
@@ -844,7 +844,7 @@ class FirebaseService {
       batch.delete(_firestore.collection('user_settings').doc(userId));
 
       // 3. Delete health data
-      batch.delete(_firestore.collection('health_data').doc(userId));
+      batch.delete(_firestore.collection('healthData').doc(userId));
 
       // 4. Delete device tokens
       batch.delete(_firestore.collection('device_tokens').doc(userId));
@@ -902,8 +902,8 @@ class FirebaseService {
 
       // 9. Delete bug reports
       final bugReportsQuery = await _firestore
-          .collection('bug_reports')
-          .where('user_id', isEqualTo: userId)
+          .collection('bugReports')
+          .where('userId', isEqualTo: userId)
           .get();
 
       for (var doc in bugReportsQuery.docs) {
@@ -934,8 +934,8 @@ class FirebaseService {
     String? appVersion,
   }) async {
     try {
-      await _firestore.collection('bug_reports').add({
-        'user_id': userId,
+      await _firestore.collection('bugReports').add({
+        'userId': userId,
         'title': title,
         'description': description,
         'device_info': deviceInfo,

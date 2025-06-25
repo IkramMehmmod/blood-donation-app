@@ -19,7 +19,7 @@ service cloud.firestore {
     }
     
     // Encryption keys collection - highly restricted
-    match /encryption_keys/{userId} {
+    match /encryptionKeys/{userId} {
       allow read: if isOwner(userId);
       allow write: if false; // Only Cloud Functions can write
     }
@@ -62,10 +62,9 @@ service cloud.firestore {
       allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
     
-    // Health data collection
+    // Health data collection - updated to camelCase
     match /healthData/{userId} {
-      allow read: if isOwner(userId);
-      allow write: if isOwner(userId);
+      allow read, write: if isAuthenticated() && isOwner(userId);
     }
     
     // User settings collection
@@ -85,6 +84,11 @@ service cloud.firestore {
     match /achievements/{userId} {
       allow read: if isSignedIn();
       allow write: if isOwner(userId);
+    }
+
+    // Bug reports collection - updated to camelCase
+    match /bugReports/{docId} {
+      allow read, write: if isAuthenticated();
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:blood_donation_app/widgets/eligibility_status.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -391,46 +392,13 @@ class _HealthScreenState extends State<HealthScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: _isEligible ? Colors.green : Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _isEligible ? Icons.check : Icons.close,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _isEligible
-                            ? 'You are eligible to donate'
-                            : 'You are not eligible to donate yet',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: _isEligible ? Colors.green : Colors.red,
-                        ),
-                      ),
-                      if (!_isEligible && _nextDonationDate != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'You can donate again on ${DateFormat('MMM d, yyyy').format(_nextDonationDate!)}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
+            EligibilityStatus(
+              isEligible: _isEligible,
+              daysUntilEligible: !_isEligible && _nextDonationDate != null
+                  ? _nextDonationDate!.difference(DateTime.now()).inDays
+                  : null,
+              eligibleText: 'You are eligible to donate',
+              notEligibleText: 'You are not eligible to donate yet',
             ),
             const SizedBox(height: 16),
             const Text(

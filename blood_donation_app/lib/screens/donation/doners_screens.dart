@@ -1,3 +1,4 @@
+import 'package:blood_donation_app/widgets/eligibility_status.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -368,28 +369,13 @@ class _DonersScreenState extends State<DonersScreen> {
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: canDonate
-                                              ? Colors.green.withOpacity(0.1)
-                                              : Colors.orange.withOpacity(0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                        ),
-                                        child: Text(
-                                          canDonate
-                                              ? 'Available'
-                                              : 'Not Available',
-                                          style: TextStyle(
-                                            color: canDonate
-                                                ? Colors.green
-                                                : Colors.orange,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 10,
-                                          ),
-                                        ),
+                                      EligibilityStatus(
+                                        isEligible: canDonate,
+                                        daysUntilEligible: !canDonate
+                                            ? daysUntilCanDonate
+                                            : null,
+                                        eligibleText: 'Available',
+                                        notEligibleText: 'Not Available',
                                       ),
                                     ],
                                   ),
@@ -533,23 +519,12 @@ class _DonersScreenState extends State<DonersScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: canDonate
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.orange.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            canDonate ? 'Available' : 'Not Available',
-                            style: TextStyle(
-                              color: canDonate ? Colors.green : Colors.orange,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
+                        EligibilityStatus(
+                          isEligible: canDonate,
+                          daysUntilEligible:
+                              !canDonate ? daysUntilCanDonate : null,
+                          eligibleText: 'Available',
+                          notEligibleText: 'Not Available',
                         ),
                       ],
                     ),

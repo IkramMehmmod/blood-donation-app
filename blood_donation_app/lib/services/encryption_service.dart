@@ -64,7 +64,7 @@ class EncryptionService {
     try {
       // Check if key exists in Firestore
       final doc = await FirebaseFirestore.instance
-          .collection('encryption_keys')
+          .collection('encryptionKeys')
           .doc(userId)
           .get();
 
@@ -72,7 +72,7 @@ class EncryptionService {
         // Generate new key
         final key = _generateKey();
         await FirebaseFirestore.instance
-            .collection('encryption_keys')
+            .collection('encryptionKeys')
             .doc(userId)
             .set({
           'key': key,
@@ -110,7 +110,7 @@ class EncryptionService {
 
     try {
       final doc =
-          await _firestore.collection('encryption_keys').doc(userId).get();
+          await _firestore.collection('encryptionKeys').doc(userId).get();
 
       if (!doc.exists) {
         debugPrint('No encryption key found for user: $userId');
@@ -118,7 +118,7 @@ class EncryptionService {
 
         // Fetch the newly created key
         final newDoc =
-            await _firestore.collection('encryption_keys').doc(userId).get();
+            await _firestore.collection('encryptionKeys').doc(userId).get();
         final key = newDoc.data()?['key'] as String?;
 
         if (key != null) {
@@ -149,7 +149,7 @@ class EncryptionService {
       final keyBase64 = base64Encode(key.bytes);
 
       // Store the key in Firestore with secure rules
-      await _firestore.collection('encryption_keys').doc(userId).set({
+      await _firestore.collection('encryptionKeys').doc(userId).set({
         'key': keyBase64,
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -410,7 +410,7 @@ class EncryptionService {
 
       // Get old encryption key
       final oldKeyDoc =
-          await _firestore.collection('encryption_keys').doc(userId).get();
+          await _firestore.collection('encryptionKeys').doc(userId).get();
       if (!oldKeyDoc.exists) {
         debugPrint('No encryption key found for rotation');
         return false;
@@ -476,7 +476,7 @@ class EncryptionService {
       }
 
       // Store new encryption key
-      await _firestore.collection('encryption_keys').doc(userId).update({
+      await _firestore.collection('encryptionKeys').doc(userId).update({
         'key': newKeyBase64,
         'rotatedAt': FieldValue.serverTimestamp(),
         'previousKey': oldKeyBase64,

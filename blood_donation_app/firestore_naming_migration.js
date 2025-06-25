@@ -18,7 +18,7 @@ const collectionsToUpdate = [
   'userSettings',
   'deviceTokens',
   'bugReports',
-  'encryption_keys'
+  'encryptionKeys'
 ];
 
 // Map of snake_case to camelCase for each collection
@@ -82,7 +82,7 @@ const fieldMappings = {
     app_version: 'appVersion',
     created_at: 'createdAt'
   },
-  encryption_keys: {
+  encryptionKeys: {
     created_at: 'createdAt',
     rotated_at: 'rotatedAt',
     previous_key: 'previousKey'
@@ -154,7 +154,7 @@ async function migrateBugReportsSpecific() {
   console.log('Starting specific migration for bug reports...');
   
   // Try different possible collection names
-  const possibleNames = ['bugReports', 'bug_reports', 'bugreports'];
+  const possibleNames = ['bugReports', 'bugreports'];
   
   for (const collectionName of possibleNames) {
     try {
@@ -215,12 +215,38 @@ async function migrateBugReportsSpecific() {
   console.log('No bug reports collection found with any of the expected names');
 }
 
+// Helper to copy documents from old collection to new collection
+async function copyCollection(oldName, newName) {
+  console.log(`Copying documents from ${oldName} to ${newName}...`);
+  const snapshot = await db.collection(oldName).get();
+  if (snapshot.empty) {
+    console.log(`No documents found in ${oldName}, skipping.`);
+    return;
+  }
+  let copied = 0;
+  for (const doc of snapshot.docs) {
+    try {
+      await db.collection(newName).doc(doc.id).set(doc.data(), { merge: true });
+      copied++;
+      console.log(`Copied ${oldName}/${doc.id} to ${newName}/${doc.id}`);
+    } catch (err) {
+      console.error(`Error copying ${oldName}/${doc.id}:`, err);
+    }
+  }
+  console.log(`Copied ${copied} documents from ${oldName} to ${newName}`);
+}
+
 async function runMigration() {
   console.log('Starting Firestore field naming migration...');
   console.log('This will convert all snake_case fields to camelCase...');
   
   // First, list all collections
   await listAllCollections();
+  
+  // Copy old collections to new camelCase collections
+  await copyCollection('health_data', 'healthData');
+  await copyCollection('bug_reports', 'bugReports');
+  await copyCollection('encryption_keys', 'encryptionKeys');
   
   for (const collection of collectionsToUpdate) {
     if (fieldMappings[collection]) {
@@ -236,4 +262,9 @@ async function runMigration() {
   console.log('Migration complete!');
 }
 
-runMigration().catch(console.error);
+console.log('Migration script started');
+try {
+  runMigration().catch(console.error);
+} catch (err) {
+  console.error('Top-level error:', err);
+}

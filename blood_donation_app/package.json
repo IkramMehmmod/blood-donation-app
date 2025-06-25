@@ -1,5 +1,8 @@
 {
   "firestore": {
     "indexe": "firestore.indexes.json"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.4.0"
   }
 }

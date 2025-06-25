@@ -13,6 +13,7 @@ import 'support/support_screen.dart';
 import 'about/about_us_screen.dart';
 import 'blood_info/blood_info_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

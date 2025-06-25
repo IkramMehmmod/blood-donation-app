@@ -1,11 +1,12 @@
 import 'dart:io';
+import 'package:blood_donation_app/widgets/eligibility_status.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
 import '../../services/firebase_service.dart';
-import '../../widgets/custom_button.dart';
+
 import '../../widgets/custom_dropdown.dart';
 import '../../widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
@@ -482,45 +483,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: _firebaseService
-                                      .canUserDonate(user.lastDonation)
-                                  ? Colors.green.withOpacity(0.1)
-                                  : Colors.orange.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  _firebaseService
-                                          .canUserDonate(user.lastDonation)
-                                      ? Icons.check_circle
-                                      : Icons.access_time,
-                                  color: _firebaseService
-                                          .canUserDonate(user.lastDonation)
-                                      ? Colors.green
-                                      : Colors.orange,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    _firebaseService
-                                            .canUserDonate(user.lastDonation)
-                                        ? 'You are eligible to donate blood'
-                                        : 'You can donate again in ${_firebaseService.getDaysUntilCanDonate(user.lastDonation)} days',
-                                    style: TextStyle(
-                                      color: _firebaseService
-                                              .canUserDonate(user.lastDonation)
-                                          ? Colors.green.shade700
-                                          : Colors.orange.shade700,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          EligibilityStatus(
+                            isEligible: _firebaseService
+                                .canUserDonate(user.lastDonation),
+                            daysUntilEligible: !_firebaseService
+                                    .canUserDonate(user.lastDonation)
+                                ? _firebaseService
+                                    .getDaysUntilCanDonate(user.lastDonation)
+                                : null,
+                            eligibleText: 'You are eligible to donate blood',
+                            notEligibleText:
+                                'You are not eligible to donate yet',
                           ),
                         ] else ...[
                           Container(
