@@ -21,7 +21,7 @@ class CustomTextField extends StatelessWidget {
   final bool enabled;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     this.controller,
     this.focusNode, // Added to constructor
     this.labelText,
@@ -39,7 +39,7 @@ class CustomTextField extends StatelessWidget {
     this.inputFormatters,
     this.contentPadding,
     this.enabled = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,10 @@ class CustomTextField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+            color: Theme.of(context)
+                .colorScheme
+                .outline
+                .withAlpha((255 * 0.5).round()),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -98,7 +101,10 @@ class CustomTextField extends StatelessWidget {
         filled: true,
         fillColor: enabled
             ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.surface.withOpacity(0.5),
+            : Theme.of(context)
+                .colorScheme
+                .surface
+                .withAlpha((255 * 0.5).round()),
       ),
     );
   }

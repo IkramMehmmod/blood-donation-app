@@ -8,11 +8,11 @@ class UpcomingDonationCard extends StatelessWidget {
   final VoidCallback? onCancel;
 
   const UpcomingDonationCard({
-    Key? key,
+    super.key,
     required this.donation,
     this.onTap,
     this.onCancel,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,8 @@ class UpcomingDonationCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(donation.status).withOpacity(0.2),
+                      color: _getStatusColor(donation.status)
+                          .withAlpha((255 * 0.2).round()),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -61,7 +62,7 @@ class UpcomingDonationCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.red.withAlpha((255 * 0.2).round()),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(

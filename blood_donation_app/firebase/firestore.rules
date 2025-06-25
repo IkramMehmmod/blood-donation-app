@@ -15,7 +15,7 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create: if isOwner(userId);
       allow update: if isOwner(userId);
-      allow delete: if false; // Prevent deletion
+      allow delete: if isOwner(userId); // Allow user to delete their own document
     }
     
     // Encryption keys collection - highly restricted
@@ -29,7 +29,7 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if false; // Prevent deletion
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid; // Allow user to delete their own donation
     }
     
     // Requests collection
@@ -42,7 +42,7 @@ service cloud.firestore {
         // Others can only update responders array
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['responders', 'updatedAt']))
       );
-      allow delete: if false; // Prevent deletion
+      allow delete: if isSignedIn() && resource.data.requesterId == request.auth.uid; // Allow user to delete their own request
     }
     
     // Notifications collection

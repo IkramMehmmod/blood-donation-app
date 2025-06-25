@@ -6,11 +6,11 @@ class NotSignedInMessage extends StatelessWidget {
   final IconData icon;
 
   const NotSignedInMessage({
-    Key? key,
+    super.key,
     this.title = 'Not signed in',
     this.message = 'Please sign in to view this content',
     this.icon = Icons.account_circle_outlined,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,10 @@ class NotSignedInMessage extends StatelessWidget {
           Icon(
             icon,
             size: 64,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withAlpha((255 * 0.5).round()),
           ),
           const SizedBox(height: 16),
           Text(
@@ -35,8 +38,8 @@ class NotSignedInMessage extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
-                      .onBackground
-                      .withOpacity(0.7),
+                      .onSurface
+                      .withAlpha((255 * 0.7).round()),
                 ),
           ),
         ],

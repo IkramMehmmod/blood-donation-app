@@ -11,7 +11,7 @@ class CustomDropdown<T> extends StatelessWidget {
   final bool enabled;
 
   const CustomDropdown({
-    Key? key,
+    super.key,
     this.labelText,
     this.hintText,
     this.value,
@@ -20,7 +20,7 @@ class CustomDropdown<T> extends StatelessWidget {
     this.validator,
     this.prefixIcon,
     this.enabled = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,10 @@ class CustomDropdown<T> extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+            color: Theme.of(context)
+                .colorScheme
+                .outline
+                .withAlpha((255 * 0.5).round()),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -76,7 +79,10 @@ class CustomDropdown<T> extends StatelessWidget {
         filled: true,
         fillColor: enabled
             ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.surface.withOpacity(0.5),
+            : Theme.of(context)
+                .colorScheme
+                .surface
+                .withAlpha((255 * 0.5).round()),
       ),
       dropdownColor: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(8),

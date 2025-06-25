@@ -11,7 +11,7 @@ import '../../routes/app_routes.dart';
 import '../../widgets/not_signed_in_message.dart';
 
 class HealthScreen extends StatefulWidget {
-  const HealthScreen({Key? key}) : super(key: key);
+  const HealthScreen({super.key});
 
   @override
   State<HealthScreen> createState() => _HealthScreenState();
@@ -284,7 +284,7 @@ class _HealthScreenState extends State<HealthScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.2),
+                              color: Colors.red.withAlpha((255 * 0.2).round()),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -458,8 +458,9 @@ class _HealthScreenState extends State<HealthScreen> {
               ),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor:
-                      Theme.of(context).primaryColor.withOpacity(0.2),
+                  backgroundColor: Theme.of(context)
+                      .primaryColor
+                      .withAlpha((255 * 0.2).round()),
                   child: Icon(
                     tip['icon'] as IconData,
                     color: Theme.of(context).primaryColor,

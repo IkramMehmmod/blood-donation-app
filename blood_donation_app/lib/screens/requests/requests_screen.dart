@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/request_model.dart';
 import '../../services/auth_service.dart';
 import '../../services/firebase_service.dart';
-import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/not_signed_in_message.dart';
 
@@ -318,7 +317,7 @@ class _RequestsScreenState extends State<RequestsScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
+                    color: Colors.orange.withAlpha((255 * 0.2).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -332,7 +331,7 @@ class _RequestsScreenState extends State<RequestsScreen>
                       Text(
                         'You can donate again in $daysUntil days',
                         style: TextStyle(
-                          color: Colors.orange.shade700,
+                          color: Colors.orange,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -424,7 +423,7 @@ class _RequestsScreenState extends State<RequestsScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: Colors.blue.withAlpha((255 * 0.05).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -513,7 +512,7 @@ class _RequestsScreenState extends State<RequestsScreen>
         throw Exception('Could not launch $url');
       }
     } catch (e) {
-      print('Error launching URL: $e');
+      // print('Error launching URL: $e');
     }
   }
 
@@ -523,20 +522,6 @@ class _RequestsScreenState extends State<RequestsScreen>
       return '+92${phone.substring(1)}'; // e.g., 0301 => +92301
     }
     return phone;
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _requiredDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 30)),
-    );
-    if (picked != null && picked != _requiredDate) {
-      setState(() {
-        _requiredDate = picked;
-      });
-    }
   }
 
   @override
@@ -562,8 +547,10 @@ class _RequestsScreenState extends State<RequestsScreen>
                 Tab(text: 'My Requests'),
               ],
               labelColor: Theme.of(context).colorScheme.primary,
-              unselectedLabelColor:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+              unselectedLabelColor: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withAlpha((255 * 0.7).round()),
               indicatorColor: Theme.of(context).colorScheme.primary,
             ),
             Expanded(
@@ -608,7 +595,10 @@ class _RequestsScreenState extends State<RequestsScreen>
             Icon(
               Icons.volunteer_activism_outlined,
               size: 64,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withAlpha((255 * 0.5).round()),
             ),
             const SizedBox(height: 16),
             Text(
@@ -622,8 +612,8 @@ class _RequestsScreenState extends State<RequestsScreen>
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
-                        .onBackground
-                        .withOpacity(0.7),
+                        .onSurface
+                        .withAlpha((255 * 0.7).round()),
                   ),
             ),
             const SizedBox(height: 16),
@@ -722,7 +712,10 @@ class _RequestsScreenState extends State<RequestsScreen>
             Icon(
               Icons.volunteer_activism_outlined,
               size: 64,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withAlpha((255 * 0.5).round()),
             ),
             const SizedBox(height: 16),
             Text(
@@ -736,8 +729,8 @@ class _RequestsScreenState extends State<RequestsScreen>
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
-                        .onBackground
-                        .withOpacity(0.7),
+                        .onSurface
+                        .withAlpha((255 * 0.7).round()),
                   ),
             ),
             const SizedBox(height: 16),
@@ -854,8 +847,10 @@ class _RequestsScreenState extends State<RequestsScreen>
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withAlpha((255 * 0.1).round()),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -893,7 +888,8 @@ class _RequestsScreenState extends State<RequestsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: urgencyColor.withOpacity(0.1),
+                              color:
+                                  urgencyColor.withAlpha((255 * 0.1).round()),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -910,7 +906,7 @@ class _RequestsScreenState extends State<RequestsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.1),
+                              color: statusColor.withAlpha((255 * 0.1).round()),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -978,8 +974,10 @@ class _RequestsScreenState extends State<RequestsScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withAlpha((255 * 0.1).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -1353,7 +1351,7 @@ class _RequestsScreenState extends State<RequestsScreen>
                       color: Theme.of(context)
                           .colorScheme
                           .primary
-                          .withOpacity(0.1),
+                          .withAlpha((255 * 0.1).round()),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -1436,8 +1434,10 @@ class _RequestsScreenState extends State<RequestsScreen>
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withAlpha((255 * 0.1).round()),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -1573,7 +1573,7 @@ class _RequestsScreenState extends State<RequestsScreen>
                         backgroundColor: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.1),
+                            .withAlpha((255 * 0.1).round()),
                         child: Text(
                           responder['name']?.substring(0, 1).toUpperCase() ??
                               'U',

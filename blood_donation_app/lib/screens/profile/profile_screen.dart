@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:blood_donation_app/widgets/eligibility_status.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +12,7 @@ import 'package:intl/intl.dart';
 import '../../widgets/not_signed_in_message.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -30,6 +29,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _stateController = TextEditingController();
   final _countryController = TextEditingController();
 
+  // Add FocusNodes for each editable field
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _phoneFocusNode = FocusNode();
+  final FocusNode _addressFocusNode = FocusNode();
+  final FocusNode _cityFocusNode = FocusNode();
+  final FocusNode _stateFocusNode = FocusNode();
+  final FocusNode _countryFocusNode = FocusNode();
+
   String _selectedBloodGroup = 'A+';
   bool _isDonor = false;
   File? _imageFile;
@@ -39,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<Map<String, dynamic>> _achievements = [];
 
   // Track which fields are being edited
-  Map<String, bool> _editingField = {
+  final Map<String, bool> _editingField = {
     'name': false,
     'phone': false,
     'address': false,
@@ -85,6 +92,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _cityController.dispose();
     _stateController.dispose();
     _countryController.dispose();
+    // Dispose FocusNodes
+    _nameFocusNode.dispose();
+    _phoneFocusNode.dispose();
+    _addressFocusNode.dispose();
+    _cityFocusNode.dispose();
+    _stateFocusNode.dispose();
+    _countryFocusNode.dispose();
     super.dispose();
   }
 
@@ -139,6 +153,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Toggle the selected field
       _editingField[field] = true;
     });
+    // Request focus for the selected field
+    switch (field) {
+      case 'name':
+        FocusScope.of(context).requestFocus(_nameFocusNode);
+        break;
+      case 'phone':
+        FocusScope.of(context).requestFocus(_phoneFocusNode);
+        break;
+      case 'address':
+        FocusScope.of(context).requestFocus(_addressFocusNode);
+        break;
+      case 'city':
+        FocusScope.of(context).requestFocus(_cityFocusNode);
+        break;
+      case 'state':
+        FocusScope.of(context).requestFocus(_stateFocusNode);
+        break;
+      case 'country':
+        FocusScope.of(context).requestFocus(_countryFocusNode);
+        break;
+    }
   }
 
   Future<void> _loadAchievements() async {
@@ -470,6 +505,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (user.lastDonation != null) ...[
                           Row(
                             children: [
+                              // Blood group pill
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color:
+                                      Colors.red.withAlpha((255 * 0.1).round()),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  user.bloodGroup,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Eligibility status pill
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: _firebaseService
+                                          .canUserDonate(user.lastDonation)
+                                      ? Colors.green
+                                          .withAlpha((255 * 0.1).round())
+                                      : Colors.orange
+                                          .withAlpha((255 * 0.1).round()),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  _firebaseService
+                                          .canUserDonate(user.lastDonation)
+                                      ? 'Available'
+                                      : 'Not Available',
+                                  style: TextStyle(
+                                    color: _firebaseService
+                                            .canUserDonate(user.lastDonation)
+                                        ? Colors.green
+                                        : Colors.orange,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
                               const Icon(Icons.calendar_today,
                                   color: Colors.blue),
                               const SizedBox(width: 8),
@@ -483,23 +570,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          EligibilityStatus(
-                            isEligible: _firebaseService
-                                .canUserDonate(user.lastDonation),
-                            daysUntilEligible: !_firebaseService
-                                    .canUserDonate(user.lastDonation)
-                                ? _firebaseService
-                                    .getDaysUntilCanDonate(user.lastDonation)
-                                : null,
-                            eligibleText: 'You are eligible to donate blood',
-                            notEligibleText:
-                                'You are not eligible to donate yet',
-                          ),
+                          if (!_firebaseService
+                              .canUserDonate(user.lastDonation)) ...[
+                            Text(
+                              'Available in ${_firebaseService.getDaysUntilCanDonate(user.lastDonation)} days',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.orange[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
                         ] else ...[
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
+                              color: Colors.blue.withAlpha(26),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Row(
@@ -561,6 +648,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                       return null;
                     },
+                    focusNode: _nameFocusNode,
                   ),
                   Positioned(
                     right: 10,
@@ -571,7 +659,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: _editingField['name']!
-                              ? Theme.of(context).primaryColor.withOpacity(0.1)
+                              ? Theme.of(context).primaryColor.withAlpha(26)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -606,6 +694,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                       return null;
                     },
+                    focusNode: _phoneFocusNode,
                   ),
                   Positioned(
                     right: 10,
@@ -616,7 +705,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: _editingField['phone']!
-                              ? Theme.of(context).primaryColor.withOpacity(0.1)
+                              ? Theme.of(context).primaryColor.withAlpha(26)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -741,6 +830,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     maxLines: 2,
                     readOnly: !_editingField['address']!,
                     onChanged: (_) => _checkForChanges(),
+                    focusNode: _addressFocusNode,
                   ),
                   Positioned(
                     right: 10,
@@ -751,7 +841,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: _editingField['address']!
-                              ? Theme.of(context).primaryColor.withOpacity(0.1)
+                              ? Theme.of(context).primaryColor.withAlpha(26)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -779,6 +869,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     prefixIcon: Icons.location_city,
                     readOnly: !_editingField['city']!,
                     onChanged: (_) => _checkForChanges(),
+                    focusNode: _cityFocusNode,
                   ),
                   Positioned(
                     right: 10,
@@ -789,7 +880,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: _editingField['city']!
-                              ? Theme.of(context).primaryColor.withOpacity(0.1)
+                              ? Theme.of(context).primaryColor.withAlpha(26)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -817,6 +908,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     prefixIcon: Icons.map,
                     readOnly: !_editingField['state']!,
                     onChanged: (_) => _checkForChanges(),
+                    focusNode: _stateFocusNode,
                   ),
                   Positioned(
                     right: 10,
@@ -827,7 +919,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: _editingField['state']!
-                              ? Theme.of(context).primaryColor.withOpacity(0.1)
+                              ? Theme.of(context).primaryColor.withAlpha(26)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -855,6 +947,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     prefixIcon: Icons.flag,
                     readOnly: !_editingField['country']!,
                     onChanged: (_) => _checkForChanges(),
+                    focusNode: _countryFocusNode,
                   ),
                   Positioned(
                     right: 10,
@@ -865,7 +958,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: _editingField['country']!
-                              ? Theme.of(context).primaryColor.withOpacity(0.1)
+                              ? Theme.of(context).primaryColor.withAlpha(26)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -892,7 +985,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? LinearGradient(
                           colors: [
                             Theme.of(context).primaryColor,
-                            Theme.of(context).primaryColor.withOpacity(0.7),
+                            Theme.of(context).primaryColor.withAlpha(153),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -903,8 +996,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   boxShadow: _hasChanges
                       ? [
                           BoxShadow(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.3),
+                            color: Theme.of(context).primaryColor.withAlpha(85),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           )
@@ -979,7 +1071,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: Theme.of(context).primaryColor.withAlpha(26),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -1022,8 +1114,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isUnlocked
-                ? Colors.amber.withOpacity(0.2)
-                : Colors.grey.withOpacity(0.2),
+                ? Colors.amber.withAlpha(26)
+                : Colors.grey.withAlpha(26),
             shape: BoxShape.circle,
           ),
           child: Icon(

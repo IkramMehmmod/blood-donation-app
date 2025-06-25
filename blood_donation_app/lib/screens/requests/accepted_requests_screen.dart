@@ -68,7 +68,7 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
         throw Exception('Could not launch $url');
       }
     } catch (e) {
-      print('Error launching URL: $e');
+      // print('Error launching URL: $e');
     }
   }
 
@@ -109,7 +109,10 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
           Icon(
             Icons.account_circle_outlined,
             size: 64,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withAlpha((255 * 0.5).round()),
           ),
           const SizedBox(height: 16),
           Text(
@@ -123,8 +126,8 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
-                      .onBackground
-                      .withOpacity(0.7),
+                      .onSurface
+                      .withAlpha((255 * 0.7).round()),
                 ),
           ),
         ],
@@ -140,7 +143,10 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
           Icon(
             Icons.volunteer_activism_outlined,
             size: 64,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withAlpha((255 * 0.5).round()),
           ),
           const SizedBox(height: 16),
           Text(
@@ -154,8 +160,8 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
-                      .onBackground
-                      .withOpacity(0.7),
+                      .onSurface
+                      .withAlpha((255 * 0.7).round()),
                 ),
           ),
           const SizedBox(height: 16),
@@ -230,8 +236,10 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withAlpha((255 * 0.1).round()),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -269,7 +277,8 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: urgencyColor.withOpacity(0.1),
+                              color:
+                                  urgencyColor.withAlpha((255 * 0.1).round()),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -286,7 +295,7 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.1),
+                              color: statusColor.withAlpha((255 * 0.1).round()),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(

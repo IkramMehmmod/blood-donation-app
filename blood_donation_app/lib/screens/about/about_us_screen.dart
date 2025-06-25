@@ -11,7 +11,7 @@ class AboutUsScreen extends StatelessWidget {
         throw Exception('Could not launch $url');
       }
     } catch (e) {
-      print('Error launching URL: $e');
+      // print('Error launching URL: $e');
     }
   }
 
@@ -49,8 +49,8 @@ class AboutUsScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
-                              .onBackground
-                              .withOpacity(0.7),
+                              .onSurface
+                              .withAlpha((255 * 0.7).round()),
                         ),
                   ),
                 ],
@@ -147,7 +147,7 @@ class AboutUsScreen extends StatelessWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .primary
-                                .withOpacity(0.1),
+                                .withAlpha((255 * 0.1).round()),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -380,8 +380,8 @@ class AboutUsScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
-                              .onBackground
-                              .withOpacity(0.7),
+                              .onSurface
+                              .withAlpha((255 * 0.7).round()),
                         ),
                   ),
                   Text(

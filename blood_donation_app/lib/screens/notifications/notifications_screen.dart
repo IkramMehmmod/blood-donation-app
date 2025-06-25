@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../services/notification_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/firebase_service.dart';
 import '../../widgets/not_signed_in_message.dart';
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({Key? key}) : super(key: key);
+  const NotificationsScreen({super.key});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -17,7 +16,7 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final FirebaseService _firebaseService = FirebaseService();
-  Map<String, Map<String, dynamic>> _userCache = {};
+  final Map<String, Map<String, dynamic>> _userCache = {};
 
   @override
   void initState() {
@@ -102,68 +101,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return 'Unknown date';
   }
 
-  Future<void> _launchPhone(String phoneNumber) async {
-    if (phoneNumber.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number not available')),
-      );
-      return;
-    }
-
-    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
-    try {
-      if (await canLaunchUrl(phoneUri)) {
-        await launchUrl(phoneUri);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('Could not launch phone call to $phoneNumber')),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error launching phone call: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _launchEmail(String email) async {
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email not available')),
-      );
-      return;
-    }
-
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: email,
-      query: 'subject=Blood Donation Request',
-    );
-
-    try {
-      if (await canLaunchUrl(emailUri)) {
-        await launchUrl(emailUri);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not launch email to $email')),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error launching email: $e')),
-        );
-      }
-    }
-  }
-
   IconData _getNotificationIcon(dynamic type) {
     if (type == null) return Icons.medical_services;
     String typeStr = type.toString();
@@ -212,7 +149,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (userId == null) {
       return CircleAvatar(
         radius: 25,
-        backgroundColor: Colors.red.withOpacity(0.1),
+        backgroundColor: Colors.red.withAlpha((255 * 0.1).round()),
         child: Icon(
           _getNotificationIcon(notification['type']),
           color: Colors.red,
@@ -227,7 +164,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircleAvatar(
             radius: 25,
-            backgroundColor: Colors.grey.withOpacity(0.1),
+            backgroundColor: Colors.grey.withAlpha((255 * 0.1).round()),
             child: const SizedBox(
               width: 20,
               height: 20,
@@ -242,7 +179,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'User data missing for notification: ${notification['id'] ?? ''}');
           return CircleAvatar(
             radius: 25,
-            backgroundColor: Colors.red.withOpacity(0.1),
+            backgroundColor: Colors.red.withAlpha((255 * 0.1).round()),
             child: Text(
               'U',
               style: const TextStyle(
@@ -258,7 +195,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
         return CircleAvatar(
           radius: 25,
-          backgroundColor: Colors.red.withOpacity(0.1),
+          backgroundColor: Colors.red.withAlpha((255 * 0.1).round()),
           backgroundImage:
               imageUrl.isNotEmpty && !imageUrl.contains('placeholder')
                   ? NetworkImage(imageUrl)
@@ -392,7 +329,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       decoration: BoxDecoration(
                         color: isRead
                             ? Colors.white
-                            : Colors.red.withOpacity(0.05),
+                            : Colors.red.withAlpha((255 * 0.05).round()),
                         border: Border(
                           bottom: BorderSide(color: Colors.grey.shade200),
                         ),

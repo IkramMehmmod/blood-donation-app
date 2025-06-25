@@ -191,7 +191,10 @@ class _SupportScreenState extends State<SupportScreen> {
             child: Text(
               answer,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withAlpha((255 * 0.8).round()),
               ),
             ),
           ),
@@ -223,8 +226,8 @@ class _SupportScreenState extends State<SupportScreen> {
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
-                      .onBackground
-                      .withOpacity(0.7),
+                      .onSurface
+                      .withAlpha((255 * 0.7).round()),
                 ),
           ),
           SizedBox(height: 24),
@@ -352,7 +355,10 @@ class _SupportScreenState extends State<SupportScreen> {
             Container(
               padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withAlpha((255 * 0.1).round()),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -378,8 +384,8 @@ class _SupportScreenState extends State<SupportScreen> {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
-                              .onBackground
-                              .withOpacity(0.7),
+                              .onSurface
+                              .withAlpha((255 * 0.7).round()),
                         ),
                   ),
                 ],
@@ -451,7 +457,7 @@ class _SupportScreenState extends State<SupportScreen> {
         throw Exception('Could not launch $url');
       }
     } catch (e) {
-      print('Error launching URL: $e');
+      // print('Error launching URL: $e');
     }
   }
 }

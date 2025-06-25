@@ -11,7 +11,7 @@ class BloodRequestCard extends StatelessWidget {
   final VoidCallback? onRespond;
 
   const BloodRequestCard({
-    Key? key,
+    super.key,
     required this.bloodType,
     required this.hospital,
     required this.urgency,
@@ -19,7 +19,7 @@ class BloodRequestCard extends StatelessWidget {
     this.requiredDate,
     this.onTap,
     this.onRespond,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,7 @@ class BloodRequestCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: urgencyColor.withOpacity(0.2),
+                      color: urgencyColor.withAlpha((255 * 0.2).round()),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(

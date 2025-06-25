@@ -7,7 +7,7 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 
 class UpdateHealthScreen extends StatefulWidget {
-  const UpdateHealthScreen({Key? key}) : super(key: key);
+  const UpdateHealthScreen({super.key});
 
   @override
   State<UpdateHealthScreen> createState() => _UpdateHealthScreenState();
@@ -185,8 +185,8 @@ class _UpdateHealthScreenState extends State<UpdateHealthScreen> {
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context)
                                 .colorScheme
-                                .onBackground
-                                .withOpacity(0.7),
+                                .onSurface
+                                .withAlpha((255 * 0.7).round()),
                           ),
                     ),
                     const SizedBox(height: 24),
@@ -286,9 +286,10 @@ class _UpdateHealthScreenState extends State<UpdateHealthScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: Colors.blue.withAlpha((255 * 0.1).round()),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                        border: Border.all(
+                            color: Colors.blue.withAlpha((255 * 0.3).round())),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

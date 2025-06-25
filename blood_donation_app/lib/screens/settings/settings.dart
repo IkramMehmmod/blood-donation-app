@@ -140,7 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
     } catch (e) {
       debugPrint('Error saving settings to Firebase: $e');
-      throw e; // Rethrow to handle in the calling function
+      rethrow; // Rethrow to handle in the calling function
     }
   }
 
@@ -171,6 +171,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (confirm != true) return;
 
+    // Prompt for password before deletion
+    final passwordController = TextEditingController();
+    final passwordConfirm = await showDialog<String?>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Password'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+                'Please enter your password to confirm account deletion:'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, passwordController.text),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (passwordConfirm == null || passwordConfirm.isEmpty) return;
+
     setState(() {
       _isLoading = true;
     });
@@ -180,11 +220,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final user = authService.currentUser;
       if (user == null) return;
 
-      // Delete user data from Firebase
-      await _firebaseService.deleteUserData(user.id!);
+      // Delete user authentication and all data (with password re-auth)
+      final success =
+          await authService.deleteAccount(password: passwordConfirm);
 
-      // Delete user authentication
-      await authService.deleteAccount();
+      if (!success) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: Incorrect password or permission denied.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
 
       // Navigate to login screen
       if (mounted) {
@@ -494,7 +545,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.orange),
                 ),
@@ -679,7 +729,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: (iconColor ?? Theme.of(context).colorScheme.primary)
-                .withOpacity(0.1),
+                .withAlpha((255 * 0.1).round()),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -696,8 +746,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         subtitle: Text(
           subtitle,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color:
-                    Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withAlpha((255 * 0.7).round()),
               ),
         ),
         trailing: trailing ??

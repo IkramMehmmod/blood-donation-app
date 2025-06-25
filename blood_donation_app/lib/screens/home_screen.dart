@@ -13,7 +13,6 @@ import 'support/support_screen.dart';
 import 'about/about_us_screen.dart';
 import 'blood_info/blood_info_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -473,7 +472,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        color: Theme.of(context)
+            .colorScheme
+            .primary
+            .withAlpha((255 * 0.1).round()),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -577,7 +579,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ? Container(
                 padding: EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withAlpha((255 * 0.1).round()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -795,7 +797,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Icon(
                 Icons.volunteer_activism_outlined,
                 size: 48,
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withAlpha((255 * 0.5).round()),
               ),
               SizedBox(height: 16),
               Text(
@@ -857,7 +862,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withAlpha((255 * 0.1).round()),
                 shape: BoxShape.circle,
               ),
               child: icon,
@@ -901,8 +909,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withAlpha((255 * 0.1).round()),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -1170,7 +1180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Icon(Icons.phone, size: 20, color: Colors.green),
                           SizedBox(width: 8),
-                          Text('${request.contactNumber}',
+                          Text(request.contactNumber,
                               style: TextStyle(fontSize: 14)),
                         ],
                       ),
@@ -1179,7 +1189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Icon(Icons.person, size: 20, color: Colors.blue),
                           SizedBox(width: 8),
-                          Text('${request.requesterName}',
+                          Text(request.requesterName,
                               style: TextStyle(fontSize: 14)),
                         ],
                       ),

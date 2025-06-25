@@ -20,7 +20,7 @@ class EncryptionService {
   // Cache the encryption keys
   String? _localEncryptionKey;
   String? _localEncryptionIv;
-  Map<String, String> _userKeyCache = {};
+  final Map<String, String> _userKeyCache = {};
 
   // Track initialization state
   bool _isInitialized = false;
@@ -204,8 +204,9 @@ class EncryptionService {
 
   // Decrypt data with user's key
   Future<String> decryptWithUserKey(String encryptedData, String userId) async {
-    if (encryptedData.isEmpty || !encryptedData.contains(':'))
+    if (encryptedData.isEmpty || !encryptedData.contains(':')) {
       return encryptedData;
+    }
 
     try {
       debugPrint('🔐 Decrypting string with user key: $encryptedData');
@@ -281,7 +282,7 @@ class EncryptionService {
       final encrypted = encrypter.encrypt(data, iv: iv);
 
       // Return IV:encrypted format
-      final result = '${_localEncryptionIv}:${encrypted.base64}';
+      final result = '$_localEncryptionIv:${encrypted.base64}';
       debugPrint('✅ Local encryption successful');
       return result;
     } catch (e) {
@@ -293,8 +294,9 @@ class EncryptionService {
 
   // Decrypt data with local key
   Future<String> decryptData(String encryptedData, [String? userId]) async {
-    if (encryptedData.isEmpty || !encryptedData.contains(':'))
+    if (encryptedData.isEmpty || !encryptedData.contains(':')) {
       return encryptedData;
+    }
 
     try {
       debugPrint('🔐 Decrypting string locally: $encryptedData');

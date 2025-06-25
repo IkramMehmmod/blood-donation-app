@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import '../models/user_model.dart';
 import '../models/donation_model.dart';
@@ -816,7 +815,7 @@ class FirebaseService {
       // Delete user's notifications
       final notificationsQuery = await _firestore
           .collection('notifications')
-          .where('user_id', isEqualTo: userId)
+          .where('userId', isEqualTo: userId)
           .get();
 
       for (var doc in notificationsQuery.docs) {
@@ -892,7 +891,7 @@ class FirebaseService {
       // 8. Delete user's notifications
       final notificationsQuery = await _firestore
           .collection('notifications')
-          .where('user_id', isEqualTo: userId)
+          .where('userId', isEqualTo: userId)
           .get();
 
       for (var doc in notificationsQuery.docs) {

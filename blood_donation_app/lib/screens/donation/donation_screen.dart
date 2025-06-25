@@ -1,6 +1,5 @@
 import 'package:blood_donation_app/services/firebase_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf/pdf.dart';
@@ -90,7 +89,10 @@ class _DonationScreenState extends State<DonationScreen> {
             Icon(
               Icons.account_circle_outlined,
               size: 64,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withAlpha((255 * 0.5).round()),
             ),
             const SizedBox(height: 16),
             Text(
@@ -104,8 +106,8 @@ class _DonationScreenState extends State<DonationScreen> {
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
-                        .onBackground
-                        .withOpacity(0.7),
+                        .onSurface
+                        .withAlpha((255 * 0.7).round()),
                   ),
             ),
             const SizedBox(height: 24),
@@ -154,7 +156,10 @@ class _DonationScreenState extends State<DonationScreen> {
                 gradient: LinearGradient(
                   colors: [
                     Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                    Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withAlpha((255 * 0.8).round()),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -222,7 +227,10 @@ class _DonationScreenState extends State<DonationScreen> {
           Icon(
             Icons.bloodtype_outlined,
             size: 64,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withAlpha((255 * 0.5).round()),
           ),
           const SizedBox(height: 16),
           Text(
@@ -236,8 +244,8 @@ class _DonationScreenState extends State<DonationScreen> {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
-                      .onBackground
-                      .withOpacity(0.7),
+                      .onSurface
+                      .withAlpha((255 * 0.7).round()),
                 ),
           ),
           const SizedBox(height: 24),
@@ -256,9 +264,10 @@ class _DonationScreenState extends State<DonationScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 24),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withAlpha((255 * 0.1).round()),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.withOpacity(0.3)),
+              border:
+                  Border.all(color: Colors.blue.withAlpha((255 * 0.3).round())),
             ),
             child: Column(
               children: [
@@ -347,7 +356,7 @@ class _DonationScreenState extends State<DonationScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withAlpha((255 * 0.1).round()),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -380,7 +389,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withAlpha((255 * 0.1).round()),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -865,9 +874,11 @@ class _DonationScreenState extends State<DonationScreen> {
               onPressed: () async {
                 Navigator.pop(context);
                 // Share the PDF file
-                await Share.shareXFiles(
-                  [XFile(file.path)],
-                  text: 'My Blood Donation Certificate from BloodBridge',
+                await SharePlus.instance.share(
+                  ShareParams(
+                    text: 'My Blood Donation Certificate from BloodBridge',
+                    files: [XFile(file.path)],
+                  ),
                 );
               },
               icon: Icon(Icons.share),
@@ -910,6 +921,8 @@ class _DonationScreenState extends State<DonationScreen> {
     final String shareText =
         'I just helped save $livesSaved ${livesSaved == 1 ? 'life' : 'lives'} by donating $bloodType blood! 🩸❤️ #BloodDonation #SaveLives #BloodHero';
 
-    Share.share(shareText);
+    SharePlus.instance.share(
+      ShareParams(text: shareText),
+    );
   }
 }

@@ -427,7 +427,7 @@ class _MapScreenState extends State<MapScreen> {
           height: 40,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.7),
+              color: Colors.blue.withAlpha((255 * 0.7).round()),
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 2),
             ),
@@ -451,19 +451,19 @@ class _MapScreenState extends State<MapScreen> {
 
       switch (center['type']) {
         case 'Hospital':
-          markerColor = Colors.red;
+          markerColor = Colors.red.withAlpha((255 * 0.7).round());
           markerIcon = Icons.local_hospital;
           break;
         case 'Blood Bank':
-          markerColor = Colors.blue;
+          markerColor = Colors.blue.withAlpha((255 * 0.7).round());
           markerIcon = Icons.bloodtype;
           break;
         case 'Donation Center':
-          markerColor = Colors.green;
+          markerColor = Colors.green.withAlpha((255 * 0.7).round());
           markerIcon = Icons.volunteer_activism;
           break;
         default:
-          markerColor = Colors.purple;
+          markerColor = Colors.purple.withAlpha((255 * 0.7).round());
           markerIcon = Icons.location_on;
       }
 
@@ -479,12 +479,12 @@ class _MapScreenState extends State<MapScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: markerColor.withOpacity(0.9),
+                color: markerColor,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withAlpha((255 * 0.2).round()),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -575,8 +575,10 @@ class _MapScreenState extends State<MapScreen> {
                                   point: LatLng(_currentLocation!.latitude!,
                                       _currentLocation!.longitude!),
                                   radius: 200, // Increased from 100 to 200
-                                  color: Colors.blue.withOpacity(0.2),
-                                  borderColor: Colors.blue.withOpacity(0.7),
+                                  color: Colors.blue
+                                      .withAlpha((255 * 0.2).round()),
+                                  borderColor: Colors.blue
+                                      .withAlpha((255 * 0.7).round()),
                                   borderStrokeWidth: 2,
                                 ),
                               ],
@@ -662,7 +664,7 @@ class _MapScreenState extends State<MapScreen> {
                       if (_isLoading && _bloodCenters.isNotEmpty)
                         Positioned.fill(
                           child: Container(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withAlpha((255 * 0.3).round()),
                             child: const Center(
                               child: CircularProgressIndicator(
                                 color: Colors.white,
@@ -752,19 +754,19 @@ class _MapScreenState extends State<MapScreen> {
 
     switch (center['type']) {
       case 'Hospital':
-        typeColor = Colors.red;
+        typeColor = Colors.red.withAlpha((255 * 0.7).round());
         typeIcon = Icons.local_hospital;
         break;
       case 'Blood Bank':
-        typeColor = Colors.blue;
+        typeColor = Colors.blue.withAlpha((255 * 0.7).round());
         typeIcon = Icons.bloodtype;
         break;
       case 'Donation Center':
-        typeColor = Colors.green;
+        typeColor = Colors.green.withAlpha((255 * 0.7).round());
         typeIcon = Icons.volunteer_activism;
         break;
       default:
-        typeColor = Colors.grey;
+        typeColor = Colors.grey.withAlpha((255 * 0.7).round());
         typeIcon = Icons.location_on;
     }
 
@@ -798,7 +800,7 @@ class _MapScreenState extends State<MapScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: typeColor.withOpacity(0.1),
+                      color: typeColor.withAlpha((255 * 0.1).round()),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -835,7 +837,7 @@ class _MapScreenState extends State<MapScreen> {
                       color: Theme.of(context)
                           .colorScheme
                           .primary
-                          .withOpacity(0.1),
+                          .withAlpha((255 * 0.1).round()),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -928,19 +930,19 @@ class _MapScreenState extends State<MapScreen> {
 
     switch (center['type']) {
       case 'Hospital':
-        typeColor = Colors.red;
+        typeColor = Colors.red.withAlpha((255 * 0.7).round());
         typeIcon = Icons.local_hospital;
         break;
       case 'Blood Bank':
-        typeColor = Colors.blue;
+        typeColor = Colors.blue.withAlpha((255 * 0.7).round());
         typeIcon = Icons.bloodtype;
         break;
       case 'Donation Center':
-        typeColor = Colors.green;
+        typeColor = Colors.green.withAlpha((255 * 0.7).round());
         typeIcon = Icons.volunteer_activism;
         break;
       default:
-        typeColor = Colors.grey;
+        typeColor = Colors.grey.withAlpha((255 * 0.7).round());
         typeIcon = Icons.location_on;
     }
 
@@ -969,7 +971,8 @@ class _MapScreenState extends State<MapScreen> {
                         width: 60,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: Colors.grey.shade300
+                              .withAlpha((255 * 0.3).round()),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -980,7 +983,7 @@ class _MapScreenState extends State<MapScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: typeColor.withOpacity(0.1),
+                            color: typeColor.withAlpha((255 * 0.1).round()),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -1135,7 +1138,10 @@ class _MapScreenState extends State<MapScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withAlpha((255 * 0.1).round()),
             shape: BoxShape.circle,
           ),
           child: Icon(

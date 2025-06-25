@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class BloodInfoScreen extends StatefulWidget {
   const BloodInfoScreen({super.key});
@@ -242,7 +241,7 @@ class _BloodInfoScreenState extends State<BloodInfoScreen>
                       color: Theme.of(context)
                           .colorScheme
                           .primary
-                          .withOpacity(0.1),
+                          .withAlpha((255 * 0.1).round()),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -263,7 +262,7 @@ class _BloodInfoScreenState extends State<BloodInfoScreen>
                       color: Theme.of(context)
                           .colorScheme
                           .primary
-                          .withOpacity(0.1),
+                          .withAlpha((255 * 0.1).round()),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -284,7 +283,7 @@ class _BloodInfoScreenState extends State<BloodInfoScreen>
                       color: Theme.of(context)
                           .colorScheme
                           .primary
-                          .withOpacity(0.1),
+                          .withAlpha((255 * 0.1).round()),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -352,7 +351,10 @@ class _BloodInfoScreenState extends State<BloodInfoScreen>
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withAlpha((255 * 0.05).round()),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -410,7 +412,10 @@ class _BloodInfoScreenState extends State<BloodInfoScreen>
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withAlpha((255 * 0.1).round()),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -504,7 +509,10 @@ class _BloodInfoScreenState extends State<BloodInfoScreen>
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withAlpha((255 * 0.1).round()),
                 shape: BoxShape.circle,
               ),
               child: Icon(

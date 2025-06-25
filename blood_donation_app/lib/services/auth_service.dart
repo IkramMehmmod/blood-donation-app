@@ -261,7 +261,7 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteAccount() async {
+  Future<bool> deleteAccount({String? password}) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -274,6 +274,20 @@ class AuthService extends ChangeNotifier {
 
       final user = _auth.currentUser;
       if (user == null) return false;
+
+      // Re-authenticate if password is provided
+      if (password != null && user.email != null) {
+        try {
+          final credential = EmailAuthProvider.credential(
+            email: user.email!,
+            password: password,
+          );
+          await user.reauthenticateWithCredential(credential);
+        } catch (e) {
+          debugPrint('Re-authentication failed: $e');
+          return false;
+        }
+      }
 
       // Delete user data from Firestore first
       await _firebaseService.deleteUserDataCompletely(user.uid);
