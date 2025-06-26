@@ -191,6 +191,24 @@ class _DonersScreenState extends State<DonersScreen> {
   Widget build(BuildContext context) {
     final filteredDonors = _getFilteredDonors();
 
+    // Uncomment and use this block if you have a not-signed-in logic
+    // final user = Provider.of<AuthService>(context).currentUser;
+    // if (user == null) {
+    //   return Scaffold(
+    //     appBar: AppBar(
+    //       title: const Text('Blood Donors'),
+    //       backgroundColor: Colors.red,
+    //       foregroundColor: Colors.white,
+    //     ),
+    //     body: SingleChildScrollView(
+    //       padding: EdgeInsets.all(24),
+    //       child: NotSignedInMessage(
+    //         message: 'Please sign in to view the list of donors',
+    //       ),
+    //     ),
+    //   );
+    // }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Blood Donors'),
@@ -203,7 +221,8 @@ class _DonersScreenState extends State<DonersScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           Container(
             color: Colors.grey[50],
@@ -260,221 +279,215 @@ class _DonersScreenState extends State<DonersScreen> {
               ],
             ),
           ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : filteredDonors.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No donors found',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Try adjusting your search or filters',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: filteredDonors.length,
-                        itemBuilder: (context, index) {
-                          final donor = filteredDonors[index];
-                          final canDonate = _firebaseService
-                              .canUserDonate(donor.lastDonation);
-                          final daysUntilCanDonate = _firebaseService
-                              .getDaysUntilCanDonate(donor.lastDonation);
-
-                          return GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20),
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(32.0),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (filteredDonors.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.search_off,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No donors found',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Try adjusting your search or filters',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...filteredDonors.map((donor) {
+              final canDonate =
+                  _firebaseService.canUserDonate(donor.lastDonation);
+              final daysUntilCanDonate =
+                  _firebaseService.getDaysUntilCanDonate(donor.lastDonation);
+              return GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                    ),
+                    builder: (context) => _buildDonorDetails(donor),
+                  );
+                },
+                child: Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Avatar
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundImage: donor.imageUrl.isNotEmpty
+                              ? NetworkImage(donor.imageUrl)
+                              : null,
+                          backgroundColor:
+                              Colors.red.withAlpha((255 * 0.1).round()),
+                          child: donor.imageUrl.isEmpty
+                              ? Text(
+                                  donor.name.isNotEmpty
+                                      ? donor.name[0].toUpperCase()
+                                      : '?',
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
                                   ),
+                                )
+                              : null,
+                        ),
+                        const SizedBox(width: 16),
+                        // Main info
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                donor.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
-                                builder: (context) => _buildDonorDetails(donor),
-                              );
-                            },
-                            child: Card(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 4),
-                              elevation: 1,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Avatar
-                                    CircleAvatar(
-                                      radius: 25,
-                                      backgroundImage: donor.imageUrl.isNotEmpty
-                                          ? NetworkImage(donor.imageUrl)
-                                          : null,
-                                      backgroundColor: Colors.red
+                              const SizedBox(height: 4),
+                              Text(
+                                // ignore: unnecessary_null_comparison
+                                '${donor.city} ${donor.state != null ? ', ${donor.state}' : ''}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  // Blood group pill
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red
                                           .withAlpha((255 * 0.1).round()),
-                                      child: donor.imageUrl.isEmpty
-                                          ? Text(
-                                              donor.name.isNotEmpty
-                                                  ? donor.name[0].toUpperCase()
-                                                  : '?',
-                                              style: const TextStyle(
-                                                color: Colors.red,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                              ),
-                                            )
-                                          : null,
+                                      borderRadius: BorderRadius.circular(6),
                                     ),
-                                    const SizedBox(width: 16),
-                                    // Main info
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            donor.name,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            // ignore: unnecessary_null_comparison
-                                            '${donor.city} ${donor.state != null ? ', ${donor.state}' : ''}',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              // Blood group pill
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.red.withAlpha(
-                                                      (255 * 0.1).round()),
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                ),
-                                                child: Text(
-                                                  donor.bloodGroup,
-                                                  style: const TextStyle(
-                                                    color: Colors.red,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              // Status pill
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: canDonate
-                                                      ? Colors.green.withAlpha(
-                                                          (255 * 0.1).round())
-                                                      : Colors.orange.withAlpha(
-                                                          (255 * 0.1).round()),
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                ),
-                                                child: Text(
-                                                  canDonate
-                                                      ? 'Available'
-                                                      : 'Not Available',
-                                                  style: TextStyle(
-                                                    color: canDonate
-                                                        ? Colors.green
-                                                        : Colors.orange,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          if (donor.lastDonation != null) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Last donation: ${donor.lastDonation != null ? _formatDate(donor.lastDonation!) : 'No previous donation recorded'}',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.grey[500],
-                                              ),
-                                            ),
-                                          ] else ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'No previous donation recorded',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.grey[500],
-                                              ),
-                                            ),
-                                          ],
-                                          if (!canDonate &&
-                                              daysUntilCanDonate > 0) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Available in $daysUntilCanDonate days',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.orange[600],
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ],
-                                        ],
+                                    child: Text(
+                                      donor.bloodGroup,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
                                       ),
                                     ),
-                                    // Call icon
-                                    IconButton(
-                                      icon: const Icon(Icons.call,
-                                          color: Colors.green),
-                                      onPressed: () =>
-                                          _showCallConfirmationDialog(donor),
-                                      tooltip: 'Call donor',
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Status pill
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: canDonate
+                                          ? Colors.green
+                                              .withAlpha((255 * 0.1).round())
+                                          : Colors.orange
+                                              .withAlpha((255 * 0.1).round()),
+                                      borderRadius: BorderRadius.circular(6),
                                     ),
-                                  ],
-                                ),
+                                    child: Text(
+                                      canDonate ? 'Available' : 'Not Available',
+                                      style: TextStyle(
+                                        color: canDonate
+                                            ? Colors.green
+                                            : Colors.orange,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          );
-                        },
-                      ),
-          ),
+                              if (donor.lastDonation != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Last donation: ${_formatDate(donor.lastDonation!)}',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ] else ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  'No previous donation recorded',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                              if (!canDonate && daysUntilCanDonate > 0) ...[
+                                Text(
+                                  'Available in $daysUntilCanDonate days',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.orange[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Next eligible: ${_formatDate(donor.lastDonation!.add(const Duration(days: 56)))}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey[500],
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        // Call icon
+                        IconButton(
+                          icon: const Icon(Icons.call, color: Colors.green),
+                          onPressed: () => _showCallConfirmationDialog(donor),
+                          tooltip: 'Call donor',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
         ],
       ),
     );
@@ -615,15 +628,17 @@ class _DonersScreenState extends State<DonersScreen> {
           const SizedBox(height: 12),
 
           if (donor.lastDonation != null) ...[
-            _buildInfoRow(
-                Icons.calendar_today,
-                'Last Donation',
-                donor.lastDonation != null
-                    ? _formatDate(donor.lastDonation!)
-                    : 'No previous donation recorded'),
-            if (!canDonate && daysUntilCanDonate > 0)
+            _buildInfoRow(Icons.calendar_today, 'Last Donation',
+                _formatDate(donor.lastDonation!)),
+            if (!canDonate && daysUntilCanDonate > 0) ...[
               _buildInfoRow(Icons.access_time, 'Available Again',
                   'In $daysUntilCanDonate days'),
+              _buildInfoRow(
+                  Icons.event,
+                  'Next Eligible Date',
+                  _formatDate(
+                      donor.lastDonation!.add(const Duration(days: 56)))),
+            ],
           ] else ...[
             _buildInfoRow(Icons.info, 'Donation History',
                 'No previous donation recorded'),
@@ -634,7 +649,7 @@ class _DonersScreenState extends State<DonersScreen> {
               'Donation Status',
               canDonate
                   ? 'Eligible to donate'
-                  : 'Not eligible (3-month waiting period)'),
+                  : 'Not eligible (56-day waiting period)'),
 
           const SizedBox(height: 24),
 

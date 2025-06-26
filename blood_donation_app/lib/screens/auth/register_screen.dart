@@ -8,6 +8,7 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/custom_dropdown.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../routes/app_routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -60,39 +61,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
 
-      final user = UserModel(
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        phone: _phoneController.text.trim(),
-        bloodGroup: _selectedBloodGroup,
-        isDonor: _isDonor,
-        address: '',
-        city: '',
-        state: '',
-        country: '',
-        imageUrl: '',
-        lastDonation: null,
-      );
-
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final success = await authService.signUp(
-        _emailController.text.trim(),
-        _passwordController.text,
-        user,
-      );
-
-      if (success && mounted) {
-        // Initialize notification service
-        final notificationService =
-            Provider.of<NotificationService>(context, listen: false);
-        await notificationService.initialize(authService.currentUser);
-
-        // Navigate to home screen
-        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-      } else if (mounted) {
+      try {
+        final credential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+        debugPrint('Registration success: \\${credential.user?.email}');
+        if (credential.user != null) {
+          await credential.user!.sendEmailVerification();
+          debugPrint('Verification email sent to: \\${credential.user!.email}');
+          // Pass user data (except password) to verification screen
+          Navigator.of(context).pushNamed(
+            AppRoutes.emailVerification,
+            arguments: {
+              'email': _emailController.text.trim(),
+              'name': _nameController.text.trim(),
+              'phone': _phoneController.text.trim(),
+              'address': '',
+              'city': '',
+              'state': '',
+              'country': '',
+              'bloodGroup': _selectedBloodGroup,
+              'isDonor': _isDonor,
+              'lastDonation': _lastDonationDate,
+            },
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Registration failed. Please try again.')),
+          );
+        }
+      } on FirebaseAuthException catch (e) {
+        debugPrint('FirebaseAuthException: \\${e.code}');
+        if (e.code == 'too-many-requests') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Too many requests. Please wait a few minutes before trying again.')),
+          );
+        } else if (e.code == 'network-request-failed') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'No internet connection. Please check your network and try again.')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration error: \\${e.message}')),
+          );
+        }
+      } catch (e) {
+        debugPrint('Registration error: \\${e.toString()}');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Failed to register. Please try again.')),
+          SnackBar(content: Text('Registration error: \\${e.toString()}')),
         );
       }
     }

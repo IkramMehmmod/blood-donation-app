@@ -332,8 +332,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         appBar: AppBar(
           title: const Text('Profile'),
         ),
-        body: const NotSignedInMessage(
-          message: 'Please sign in to view your profile',
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(24),
+          child: NotSignedInMessage(
+            message: 'Please sign in to view your profile',
+          ),
         ),
       );
     }
@@ -505,58 +508,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (user.lastDonation != null) ...[
                           Row(
                             children: [
-                              // Blood group pill
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors.red.withAlpha((255 * 0.1).round()),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  user.bloodGroup,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              // Eligibility status pill
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: _firebaseService
-                                          .canUserDonate(user.lastDonation)
-                                      ? Colors.green
-                                          .withAlpha((255 * 0.1).round())
-                                      : Colors.orange
-                                          .withAlpha((255 * 0.1).round()),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  _firebaseService
-                                          .canUserDonate(user.lastDonation)
-                                      ? 'Available'
-                                      : 'Not Available',
-                                  style: TextStyle(
-                                    color: _firebaseService
-                                            .canUserDonate(user.lastDonation)
-                                        ? Colors.green
-                                        : Colors.orange,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
                               const Icon(Icons.calendar_today,
                                   color: Colors.blue),
                               const SizedBox(width: 8),
@@ -572,13 +523,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 12),
                           if (!_firebaseService
                               .canUserDonate(user.lastDonation)) ...[
+                            Row(
+                              children: [
+                                const Icon(Icons.access_time,
+                                    color: Colors.orange, size: 16),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Available in ${_firebaseService.getDaysUntilCanDonate(user.lastDonation)} days',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.orange[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
                             Text(
-                              'Available in ${_firebaseService.getDaysUntilCanDonate(user.lastDonation)} days',
+                              'Next eligible donation: ${DateFormat('MMM d, yyyy').format(user.lastDonation!.add(const Duration(days: 56)))}',
                               style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.orange[600],
-                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                                fontStyle: FontStyle.italic,
                               ),
+                            ),
+                            const SizedBox(height: 8),
+                          ] else ...[
+                            Row(
+                              children: [
+                                const Icon(Icons.check_circle,
+                                    color: Colors.green, size: 16),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Eligible to donate now',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.green[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 8),
                           ],
@@ -608,11 +592,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                         const SizedBox(height: 12),
                         const Text(
-                          'Note: You must wait 3 months between blood donations for your health and safety.',
+                          'Note: You must wait 56 days (8 weeks) between blood donations for your health and safety.',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
                             fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // Sync last donation date button
+                        ElevatedButton.icon(
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+
+                                  try {
+                                    await _firebaseService
+                                        .syncUserLastDonationDate(user.id!);
+
+                                    // Refresh user data
+                                    final authService =
+                                        Provider.of<AuthService>(context,
+                                            listen: false);
+                                    await authService.refreshCurrentUser();
+
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Last donation date synced successfully!'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Error syncing donation date: $e'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
+                                    }
+                                  }
+                                },
+                          icon: _isLoading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.sync, size: 16),
+                          label: Text(_isLoading
+                              ? 'Syncing...'
+                              : 'Sync Last Donation Date'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ],

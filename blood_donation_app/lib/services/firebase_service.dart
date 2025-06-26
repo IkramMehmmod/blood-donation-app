@@ -122,23 +122,22 @@ class FirebaseService {
     }
   }
 
-  // Check if user can donate (3 months rule)
+  // Check if user can donate (56 days = 8 weeks rule)
   bool canUserDonate(DateTime? lastDonation) {
     if (lastDonation == null) return true;
 
     final now = DateTime.now();
-    final threeMonthsAgo = DateTime(now.year, now.month - 3, now.day);
+    final canDonateDate = lastDonation.add(const Duration(days: 56));
 
-    return lastDonation.isBefore(threeMonthsAgo);
+    return now.isAfter(canDonateDate);
   }
 
-  // Get days until user can donate again
+  // Get days until user can donate again (56 days = 8 weeks rule)
   int getDaysUntilCanDonate(DateTime? lastDonation) {
     if (lastDonation == null) return 0;
 
     final now = DateTime.now();
-    final canDonateDate =
-        DateTime(lastDonation.year, lastDonation.month + 3, lastDonation.day);
+    final canDonateDate = lastDonation.add(const Duration(days: 56));
 
     if (now.isAfter(canDonateDate)) return 0;
 
@@ -1052,6 +1051,58 @@ class FirebaseService {
     } catch (e) {
       debugPrint('Error adding notification: $e');
       rethrow;
+    }
+  }
+
+  // Sync user's last donation date from donation history
+  Future<void> syncUserLastDonationDate(String userId) async {
+    try {
+      final donations = await getUserDonations(userId);
+
+      if (donations.isNotEmpty) {
+        // Get the most recent donation
+        final lastDonation = donations.first;
+
+        // Update user's lastDonation field
+        await _firestore.collection('users').doc(userId).update({
+          'lastDonation': Timestamp.fromDate(lastDonation.date),
+          'updatedAt': Timestamp.fromDate(DateTime.now()),
+        });
+
+        debugPrint('✅ User last donation date synced: ${lastDonation.date}');
+      }
+    } catch (e) {
+      debugPrint('❌ Error syncing user last donation date: $e');
+      rethrow;
+    }
+  }
+
+  // Get user's last donation date from donation history
+  Future<DateTime?> getLastDonationDateFromHistory(String userId) async {
+    try {
+      final donations = await getUserDonations(userId);
+
+      if (donations.isNotEmpty) {
+        return donations.first.date;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('❌ Error getting last donation date from history: $e');
+      return null;
+    }
+  }
+
+  Future<RequestModel?> getRequestById(String requestId) async {
+    try {
+      final doc = await _firestore.collection('requests').doc(requestId).get();
+      if (doc.exists && doc.data() != null) {
+        final data = {...doc.data()!, 'id': doc.id};
+        return await _processRequestData(data);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error fetching request by ID: $e');
+      return null;
     }
   }
 }

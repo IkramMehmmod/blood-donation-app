@@ -82,7 +82,8 @@ class _DonationScreenState extends State<DonationScreen> {
     final user = Provider.of<AuthService>(context).currentUser;
 
     if (user == null) {
-      return Center(
+      return SingleChildScrollView(
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -94,12 +95,12 @@ class _DonationScreenState extends State<DonationScreen> {
                   .primary
                   .withAlpha((255 * 0.5).round()),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               'Not signed in',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               'Please sign in to view your donation history',
               textAlign: TextAlign.center,
@@ -110,12 +111,12 @@ class _DonationScreenState extends State<DonationScreen> {
                         .withAlpha((255 * 0.7).round()),
                   ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/login');
               },
-              child: const Text('Sign In'),
+              child: Text('Sign In'),
             ),
           ],
         ),

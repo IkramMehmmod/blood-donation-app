@@ -6,6 +6,7 @@ import '../../services/notification_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/firebase_service.dart';
 import '../../widgets/not_signed_in_message.dart';
+import '../../models/request_model.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -225,8 +226,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           backgroundColor: Colors.red,
           foregroundColor: Colors.white,
         ),
-        body: const NotSignedInMessage(
-          message: 'Please sign in to view notifications',
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(24),
+          child: NotSignedInMessage(
+            message: 'Please sign in to view notifications',
+          ),
         ),
       );
     }
@@ -303,11 +307,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 itemCount: notifications.length,
                 itemBuilder: (context, index) {
                   final notification = notifications[index];
-                  // Corrected from 'is_read' to 'isRead'
                   final isRead = notification['isRead'] ?? false;
-                  // Corrected from 'created_at' to 'createdAt'
                   final formattedDate =
                       _formatNotificationDate(notification['createdAt']);
+
+                  // Check if this notification is for a request
+                  final type = notification['type']?.toString();
+                  final referenceId = notification['referenceId']?.toString();
+                  final isRequestType =
+                      type == 'request' || type == 'blood_request';
 
                   return Dismissible(
                     key:
@@ -346,43 +354,83 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             fontSize: 16,
                           ),
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 4),
-                            Text(
-                              notification['message']?.toString() ??
-                                  notification['body']?.toString() ??
-                                  '',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Text(
-                                  formattedDate,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
-                                const Spacer(),
-                                if (!isRead)
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
+                        subtitle: isRequestType && referenceId != null
+                            ? FutureBuilder<RequestModel?>(
+                                future: _firebaseService
+                                    .getRequestById(referenceId),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text('Checking request status...'),
+                                      ],
+                                    );
+                                  }
+                                  final request = snapshot.data;
+                                  if (request == null) {
+                                    return Text(
+                                      'This request is no longer available.',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[700],
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    );
+                                  }
+                                  if (request.status == 'closed' ||
+                                      request.status == 'expired') {
+                                    return Text(
+                                      'This request has been closed by the user.',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.red[400],
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    );
+                                  }
+                                  // Show normal message if open
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 4),
+                                      Text(
+                                        notification['message']?.toString() ??
+                                            notification['body']?.toString() ??
+                                            '',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 4),
+                                  Text(
+                                    notification['message']?.toString() ??
+                                        notification['body']?.toString() ??
+                                        '',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[700],
                                     ),
                                   ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                ],
+                              ),
+                        trailing: null,
                         onTap: () {
                           if (!isRead && notification['id'] != null) {
                             notificationService

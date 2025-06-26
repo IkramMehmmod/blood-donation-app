@@ -578,8 +578,11 @@ class _RequestsScreenState extends State<RequestsScreen>
     final currentUser = Provider.of<AuthService>(context).currentUser;
 
     if (currentUser == null) {
-      return const NotSignedInMessage(
-        message: 'Please sign in to view blood requests',
+      return SingleChildScrollView(
+        padding: EdgeInsets.all(24),
+        child: NotSignedInMessage(
+          message: 'Please sign in to view blood requests',
+        ),
       );
     }
 
@@ -695,8 +698,11 @@ class _RequestsScreenState extends State<RequestsScreen>
   Widget _buildMyRequestsTab() {
     final currentUser = Provider.of<AuthService>(context).currentUser;
     if (currentUser == null) {
-      return const NotSignedInMessage(
-        message: 'Please sign in to view your blood requests',
+      return SingleChildScrollView(
+        padding: EdgeInsets.all(24),
+        child: NotSignedInMessage(
+          message: 'Please sign in to view your blood requests',
+        ),
       );
     }
 

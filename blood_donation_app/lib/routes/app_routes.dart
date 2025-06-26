@@ -15,6 +15,7 @@ import '../screens/health/health_screen.dart';
 import '../screens/map/map_screen.dart';
 import '../screens/health/update_health_screen.dart';
 import '../screens/support/support_screen.dart';
+import '../screens/auth/email_verification_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -34,6 +35,7 @@ class AppRoutes {
   static const String homeScreen = '/home-screen';
   static const String updateHealth = '/update-health';
   static const String acceptedScreen = '/accepted-screen';
+  static const String emailVerification = '/email-verification';
 
   static Route<dynamic> generateRoute(RouteSettings routeSettings) {
     switch (routeSettings.name) {
@@ -70,6 +72,22 @@ class AppRoutes {
             builder: (_) => const AcceptedRequestsScreen());
       case updateHealth:
         return MaterialPageRoute(builder: (_) => const UpdateHealthScreen());
+      case emailVerification:
+        final args = routeSettings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder: (_) => EmailVerificationScreen(
+            email: args['email'],
+            name: args['name'],
+            phone: args['phone'],
+            address: args['address'],
+            city: args['city'],
+            state: args['state'],
+            country: args['country'],
+            bloodGroup: args['bloodGroup'],
+            isDonor: args['isDonor'],
+            lastDonation: args['lastDonation'],
+          ),
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

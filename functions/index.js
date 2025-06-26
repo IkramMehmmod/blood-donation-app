@@ -50,13 +50,24 @@ exports.sendBloodRequestNotification = onDocumentCreated(
         // Only send notifications for 'open' requests
         if (requestData.status !== "open") {
           logger.log(`❌ Blood request ${requestId} is not 'open'. Status: ${requestData.status}. No notification sent.`);
+          // Delete any notification that may have been created for this request
+          try {
+            const notificationsSnapshot = await firestore.collection("notifications").where("referenceId", "==", requestId).get();
+            if (!notificationsSnapshot.empty) {
+              const deletePromises = notificationsSnapshot.docs.map(doc => doc.ref.delete());
+              await Promise.all(deletePromises);
+              logger.log(`🗑️ Deleted ${notificationsSnapshot.size} notifications for closed request ${requestId}`);
+            }
+          } catch (deleteError) {
+            logger.error(`Error deleting notifications for closed request ${requestId}:`, deleteError);
+          }
           return null;
         }
 
         logger.log(`✅ Request is 'open'. Proceeding with notification...`);
 
         // Extract request data
-        const bloodGroup = requestData.bloodGroup;
+        const bloodGroup = requestData.bloodGroup || "Unknown";
         const urgency = requestData.urgency || "normal";
         const location = requestData.location || "an unspecified location";
         const requesterId = requestData.requesterId;
@@ -468,4 +479,108 @@ exports.cleanupExpiredRequests = onSchedule(
         return null;
       }
     },
+);
+
+/**
+ * Scheduled cleanup function to remove notifications for closed/deleted requests
+ */
+exports.cleanupClosedRequestNotifications = onSchedule('every 1 hours', async (event) => {
+  try {
+    const notificationsSnapshot = await firestore.collection("notifications").where("type", "==", "blood_request").get();
+    let deleteCount = 0;
+    for (const doc of notificationsSnapshot.docs) {
+      const notification = doc.data();
+      const referenceId = notification.referenceId;
+      if (!referenceId) continue;
+      const requestDoc = await firestore.collection("requests").doc(referenceId).get();
+      if (!requestDoc.exists || requestDoc.data().status !== "open") {
+        await doc.ref.delete();
+        deleteCount++;
+      }
+    }
+    logger.log(`🧹 Cleanup: Deleted ${deleteCount} notifications for closed/deleted requests.`);
+  } catch (error) {
+    logger.error("❌ Error during scheduled notification cleanup:", error);
+  }
+});
+
+/**
+ * Send notification when a blood request status changes to 'open'
+ */
+exports.sendBloodRequestNotificationOnOpen = onDocumentUpdated(
+  "requests/{requestId}",
+  async (event) => {
+    try {
+      const oldData = event.data.before.data();
+      const newData = event.data.after.data();
+      const requestId = event.params.requestId;
+
+      // Only notify if status changed to 'open'
+      if (oldData.status !== "open" && newData.status === "open") {
+        logger.log(`🔔 Status changed to 'open' for request: ${requestId}`);
+        // Extract request data
+        const bloodGroup = newData.bloodGroup || "Unknown";
+        const urgency = newData.urgency || "normal";
+        const location = newData.location || "an unspecified location";
+        const requesterId = newData.requesterId;
+        const patientName = newData.patientName || "a patient";
+        const hospital = newData.hospital || location;
+        const urgencyText = urgency === "urgent" ? "URGENT: " : "";
+
+        // Notification payload
+        const notificationPayload = {
+          notification: {
+            title: `${urgencyText}New Blood Request: ${bloodGroup}`,
+            body: `${patientName} in ${hospital} needs ${bloodGroup} blood. Can you help?`,
+          },
+          data: {
+            type: "blood_request",
+            referenceId: requestId,
+            bloodGroup: bloodGroup,
+            location: location,
+            urgency: urgency,
+            click_action: "FLUTTER_NOTIFICATION_CLICK",
+            channelId: ANDROID_CHANNEL_ID,
+          },
+        };
+
+        // Create in-app notifications for all users except requester
+        try {
+          const usersSnapshot = await firestore.collection("users").get();
+          logger.log(`👥 Found ${usersSnapshot.size} users in database`);
+
+          if (!usersSnapshot.empty) {
+            const notificationPromises = [];
+            let skippedCount = 0;
+            usersSnapshot.forEach((doc) => {
+              const userId = doc.id;
+              if (userId === requesterId) {
+                skippedCount++;
+                return;
+              }
+              notificationPromises.push(
+                firestore.collection("notifications").add({
+                  userId: userId,
+                  title: notificationPayload.notification.title,
+                  message: notificationPayload.notification.body,
+                  type: "blood_request",
+                  referenceId: requestId,
+                  isRead: false,
+                  createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                })
+              );
+            });
+            await Promise.all(notificationPromises);
+            logger.log(`✅ Created ${notificationPromises.length} in-app notification records`);
+            logger.log(`⏭️ Skipped ${skippedCount} notifications (requester)`);
+          }
+        } catch (inAppError) {
+          logger.error("❌ Error creating in-app notifications:", inAppError);
+        }
+      }
+    } catch (error) {
+      logger.error("❌ Error in sendBloodRequestNotificationOnOpen:", error);
+    }
+    return null;
+  }
 );

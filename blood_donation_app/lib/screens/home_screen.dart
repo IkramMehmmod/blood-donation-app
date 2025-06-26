@@ -784,65 +784,77 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildUrgentRequests(BuildContext context) {
-    if (_urgentRequests.isEmpty) {
-      return Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Icon(
-                Icons.volunteer_activism_outlined,
-                size: 48,
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withAlpha((255 * 0.5).round()),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'No urgent requests',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 16,
-                    ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'There are no urgent blood requests at the moment',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
-                    ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Column(
-      children: _urgentRequests.map((request) {
-        final postedTime = _getTimeAgo(request.createdAt);
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _urgentRequests.isEmpty
+            ? Container(
+                width: double.infinity,
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.volunteer_activism_outlined,
+                          size: 48,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withAlpha((255 * 0.5).round()),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'No urgent requests',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontSize: 16,
+                                  ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'There are no urgent blood requests at the moment',
+                          textAlign: TextAlign.center,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: 14,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _urgentRequests.length,
+                itemBuilder: (context, index) {
+                  final request = _urgentRequests[index];
+                  final postedTime = _getTimeAgo(request.createdAt);
 
-        return Padding(
-          padding: EdgeInsets.only(bottom: 12),
-          child: GestureDetector(
-            onTap: () {
-              _showRequestDetailsDialog(request);
-            },
-            child: BloodRequestCard(
-              bloodType: request.bloodGroup,
-              hospital: request.hospital,
-              urgency: request.urgency,
-              postedTime: postedTime,
-              requiredDate: request.requiredDate,
-            ),
-          ),
-        );
-      }).toList(),
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: GestureDetector(
+                      onTap: () {
+                        _showRequestDetailsDialog(request);
+                      },
+                      child: BloodRequestCard(
+                        bloodType: request.bloodGroup,
+                        hospital: request.hospital,
+                        urgency: request.urgency,
+                        postedTime: postedTime,
+                        requiredDate: request.requiredDate,
+                      ),
+                    ),
+                  );
+                },
+              ),
+      ],
     );
   }
 
@@ -1035,7 +1047,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      // Check if user can donate (3 months rule)
+      // Check if user can donate (56 days rule)
       if (!_firebaseService.canUserDonate(user.lastDonation)) {
         final daysUntil =
             _firebaseService.getDaysUntilCanDonate(user.lastDonation);
@@ -1054,7 +1066,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                    'You cannot accept donation requests yet as you need to wait 3 months between donations.'),
+                    'You cannot accept donation requests yet as you need to wait 56 days (8 weeks) between donations.'),
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -1075,6 +1087,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           color: Colors.orange.shade700,
                           fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Next eligible date: ${DateFormat('MMM d, yyyy').format(user.lastDonation!.add(const Duration(days: 56)))}',
+                        style: TextStyle(
+                          color: Colors.orange.shade600,
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
                     ],

@@ -36,11 +36,11 @@ class AuthService extends ChangeNotifier {
           _currentUser = existingUser;
           debugPrint('Loaded existing user: ${existingUser.email}');
         } else {
-          // Only create if no document exists
-          await _createUserDocumentIfNeeded(firebaseUser);
+          // Do NOT create Firestore user here anymore
+          debugPrint('No Firestore user found for: ${firebaseUser.email}');
         }
       } catch (e) {
-        debugPrint('Error loading or creating user: $e');
+        debugPrint('Error loading user: ${e.toString()}');
       }
     } else if (firebaseUser == null) {
       _currentUser = null;
@@ -48,37 +48,6 @@ class AuthService extends ChangeNotifier {
       _encryptionService.clearCache();
     }
     notifyListeners();
-  }
-
-  Future<void> _createUserDocumentIfNeeded(User firebaseUser) async {
-    try {
-      debugPrint('Creating user document for: ${firebaseUser.uid}');
-
-      // Create a new user document with basic info from Firebase Auth
-      final newUser = UserModel(
-        id: firebaseUser.uid,
-        email: firebaseUser.email ?? '',
-        name: firebaseUser.displayName ?? '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        country: '',
-        bloodGroup: '',
-        isDonor: false,
-        imageUrl: firebaseUser.photoURL ?? '',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      // Save to Firestore
-      await _firebaseService.createUser(newUser);
-      _currentUser = newUser;
-      debugPrint('New user document created: ${newUser.email}');
-    } catch (e) {
-      debugPrint('Error creating user document: $e');
-      _currentUser = null;
-    }
   }
 
   Future<bool> signInAsGuest() async {
@@ -135,19 +104,15 @@ class AuthService extends ChangeNotifier {
           updatedAt: DateTime.now(),
         );
 
-        // Create user document in Firestore
-        await _firebaseService.createUser(updatedUserData);
-
-        // Initialize push notifications
-        await _pushNotificationService.initialize(updatedUserData);
-
+        // Do NOT create Firestore user here
+        // Only set local state
         _currentUser = updatedUserData;
         _isGuest = false;
         return true;
       }
       return false;
     } catch (e) {
-      debugPrint('Sign up error: $e');
+      debugPrint('Sign up error: ${e.toString()}');
       return false;
     } finally {
       _isLoading = false;
@@ -166,16 +131,41 @@ class AuthService extends ChangeNotifier {
       );
 
       if (credential.user != null) {
-        // Load existing user data - DON'T create new
-        final existingUser =
-            await _firebaseService.getUser(credential.user!.uid);
+        final user = credential.user!;
+        // Load existing user data
+        final existingUser = await _firebaseService.getUser(user.uid);
 
         if (existingUser != null) {
           _currentUser = existingUser;
           debugPrint('Sign in - Existing user loaded: ${existingUser.email}');
         } else {
-          // Only create if absolutely no user document exists
-          await _createUserDocumentIfNeeded(credential.user!);
+          // Only create Firestore user if email is verified
+          if (user.emailVerified) {
+            debugPrint(
+                'Sign in - No Firestore user found, but email is verified. Creating Firestore user.');
+            final newUser = UserModel(
+              id: user.uid,
+              email: user.email ?? '',
+              name: user.displayName ?? '',
+              phone: '',
+              address: '',
+              city: '',
+              state: '',
+              country: '',
+              bloodGroup: '',
+              isDonor: false,
+              imageUrl: user.photoURL ?? '',
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
+            await _firebaseService.createUser(newUser);
+            _currentUser = newUser;
+            debugPrint(
+                'Sign in - Firestore user created for: ${newUser.email}');
+          } else {
+            debugPrint(
+                'Sign in - No Firestore user found and email is NOT verified.');
+          }
         }
 
         // Initialize push notifications if user data is available
@@ -188,7 +178,7 @@ class AuthService extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      debugPrint('Sign in error: $e');
+      debugPrint('Sign in error: ${e.toString()}');
       return false;
     } finally {
       _isLoading = false;
@@ -352,8 +342,8 @@ class AuthService extends ChangeNotifier {
           debugPrint(
               'Initialize - Existing user loaded: ${_currentUser?.email}');
         } else {
-          await _createUserDocumentIfNeeded(firebaseUser);
-          debugPrint('Initialize - New user created: ${_currentUser?.email}');
+          debugPrint(
+              'Initialize - No Firestore user found for: ${firebaseUser.email}');
         }
       } else {
         _currentUser = null;
@@ -363,7 +353,7 @@ class AuthService extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      debugPrint('Error in initialize: $e');
+      debugPrint('Error in initialize: ${e.toString()}');
       _currentUser = null;
       _isGuest = false;
       notifyListeners();

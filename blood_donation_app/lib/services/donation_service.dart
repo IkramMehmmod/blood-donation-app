@@ -73,26 +73,25 @@ class DonationService extends ChangeNotifier {
     }
   }
 
-  // Check if user is eligible to donate based on last donation date
+  // Check if user is eligible to donate based on last donation date (56 days = 8 weeks rule)
   bool isEligibleToDonate(DateTime? lastDonationDate) {
     if (lastDonationDate == null) {
       return true; // No previous donation, eligible
     }
 
     final now = DateTime.now();
-    final threeMonthsAgo = DateTime(now.year, now.month - 3, now.day);
-    return lastDonationDate.isBefore(threeMonthsAgo);
+    final canDonateDate = lastDonationDate.add(const Duration(days: 56));
+    return now.isAfter(canDonateDate);
   }
 
-  // Get days until next eligible donation
+  // Get days until next eligible donation (56 days = 8 weeks rule)
   int getDaysUntilEligible(DateTime? lastDonationDate) {
     if (lastDonationDate == null) {
       return 0; // Already eligible
     }
 
     final now = DateTime.now();
-    final canDonateDate = DateTime(lastDonationDate.year,
-        lastDonationDate.month + 3, lastDonationDate.day);
+    final canDonateDate = lastDonationDate.add(const Duration(days: 56));
     if (now.isAfter(canDonateDate)) return 0;
     return canDonateDate.difference(now).inDays + 1;
   }

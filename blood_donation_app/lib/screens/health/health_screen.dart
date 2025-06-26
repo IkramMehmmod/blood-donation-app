@@ -106,18 +106,16 @@ class _HealthScreenState extends State<HealthScreen> {
       // Get donation history for chart
       final donations = await _firebaseService.getUserDonations(user.id!);
 
-      // Calculate donation eligibility
-      if (donations.isNotEmpty) {
-        final lastDonation = donations.first.date;
-        final eligibleDate = lastDonation.add(const Duration(days: 56));
+      // Calculate donation eligibility using the improved canUserDonate function
+      final canDonate = _firebaseService.canUserDonate(user.lastDonation);
+      final daysUntilCanDonate =
+          _firebaseService.getDaysUntilCanDonate(user.lastDonation);
 
-        if (eligibleDate.isAfter(DateTime.now())) {
-          setState(() {
-            _isEligible = false;
-            _nextDonationDate = eligibleDate;
-          });
-        }
-      }
+      setState(() {
+        _isEligible = canDonate;
+        _nextDonationDate =
+            canDonate ? null : user.lastDonation?.add(const Duration(days: 56));
+      });
 
       // Process donation history for chart
       final Map<int, int> donationsByMonth = {};
@@ -186,23 +184,23 @@ class _HealthScreenState extends State<HealthScreen> {
           title: const Text('Health Profile'),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const NotSignedInMessage(
+              NotSignedInMessage(
                 message: 'Please sign in to view your health profile',
               ),
-              const SizedBox(height: 32),
-              const Text(
+              SizedBox(height: 32),
+              Text(
                 'Health Tips',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildHealthTips(),
             ],
           ),
@@ -372,7 +370,10 @@ class _HealthScreenState extends State<HealthScreen> {
   }
 
   Widget _buildDonationEligibility(UserModel? user) {
-// 56 days = 8 weeks
+    // Get current eligibility status
+    final canDonate = _firebaseService.canUserDonate(user?.lastDonation);
+    final daysUntilCanDonate =
+        _firebaseService.getDaysUntilCanDonate(user?.lastDonation);
 
     return Card(
       elevation: 2,
@@ -393,14 +394,53 @@ class _HealthScreenState extends State<HealthScreen> {
             ),
             const SizedBox(height: 16),
             EligibilityStatus(
-              isEligible: _isEligible,
-              daysUntilEligible: !_isEligible && _nextDonationDate != null
-                  ? _nextDonationDate!.difference(DateTime.now()).inDays
-                  : null,
+              isEligible: canDonate,
+              daysUntilEligible: !canDonate ? daysUntilCanDonate : null,
               eligibleText: 'You are eligible to donate',
               notEligibleText: 'You are not eligible to donate yet',
             ),
             const SizedBox(height: 16),
+            // Show last donation information if available
+            if (user?.lastDonation != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withAlpha(26),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today,
+                            color: Colors.blue, size: 16),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Last Donation: ${DateFormat('MMM d, yyyy').format(user!.lastDonation!)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (!canDonate && daysUntilCanDonate > 0) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Next eligible donation: ${DateFormat('MMM d, yyyy').format(user.lastDonation!.add(const Duration(days: 56)))}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.orange[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             const Text(
               'Donation Requirements:',
               style: TextStyle(
@@ -411,7 +451,8 @@ class _HealthScreenState extends State<HealthScreen> {
             _buildRequirementItem('Must be at least 18 years old'),
             _buildRequirementItem('Weight at least 50 kg (110 lbs)'),
             _buildRequirementItem('Be in good health and feeling well'),
-            _buildRequirementItem('Have not donated in the last 56 days'),
+            _buildRequirementItem(
+                'Have not donated in the last 56 days (8 weeks)'),
             _buildRequirementItem(
                 'Have hemoglobin level of at least 12.5 g/dL'),
           ],
