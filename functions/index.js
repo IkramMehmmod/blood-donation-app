@@ -67,25 +67,27 @@ exports.sendBloodRequestNotification = onDocumentCreated(
         logger.log(`✅ Request is 'open'. Proceeding with notification...`);
 
         // Extract request data
-        const bloodGroup = requestData.bloodGroup || "Unknown";
+        const bloodGroup = requestData.bloodGroup_plain || requestData.bloodGroup || "Unknown";
         const urgency = requestData.urgency || "normal";
-        const location = requestData.location || "an unspecified location";
+        const location = requestData.location_plain || requestData.location || "an unspecified location";
         const requesterId = requestData.requesterId;
-        const patientName = requestData.patientName || "a patient";
-        const hospital = requestData.hospital || location;
+        const requesterName = requestData.requesterName_plain || requestData.requesterName || "a user";
+        const patientName = requestData.patientName_plain || requestData.patientName || "a patient";
+        const hospital = requestData.hospital_plain || requestData.hospital || location;
 
         logger.log(`🩸 Blood Group: ${bloodGroup}`);
         logger.log(`🚨 Urgency: ${urgency}`);
         logger.log(`📍 Location: ${location}`);
         logger.log(`👤 Requester ID: ${requesterId}`);
+        logger.log(`👤 Requester Name: ${requesterName}`);
 
         const urgencyText = urgency === "urgent" ? "URGENT: " : "";
 
-        // ✅ MINIMAL: Only essential FCM payload fields
+        // Notification with requester name in title
         const notificationPayload = {
           notification: {
-            title: `${urgencyText}New Blood Request: ${bloodGroup}`,
-            body: `${patientName} in ${hospital} needs ${bloodGroup} blood. Can you help?`,
+            title: `New request from ${requesterName}`,
+            body: "Tap to view details.",
           },
           data: {
             type: "blood_request",
@@ -519,19 +521,20 @@ exports.sendBloodRequestNotificationOnOpen = onDocumentUpdated(
       if (oldData.status !== "open" && newData.status === "open") {
         logger.log(`🔔 Status changed to 'open' for request: ${requestId}`);
         // Extract request data
-        const bloodGroup = newData.bloodGroup || "Unknown";
+        const bloodGroup = newData.bloodGroup_plain || newData.bloodGroup || "Unknown";
         const urgency = newData.urgency || "normal";
-        const location = newData.location || "an unspecified location";
+        const location = newData.location_plain || newData.location || "an unspecified location";
         const requesterId = newData.requesterId;
-        const patientName = newData.patientName || "a patient";
-        const hospital = newData.hospital || location;
+        const requesterName = newData.requesterName_plain || newData.requesterName || "a user";
+        const patientName = newData.patientName_plain || newData.patientName || "a patient";
+        const hospital = newData.hospital_plain || newData.hospital || location;
         const urgencyText = urgency === "urgent" ? "URGENT: " : "";
 
         // Notification payload
         const notificationPayload = {
           notification: {
-            title: `${urgencyText}New Blood Request: ${bloodGroup}`,
-            body: `${patientName} in ${hospital} needs ${bloodGroup} blood. Can you help?`,
+            title: `New request from ${requesterName}`,
+            body: "Tap to view details.",
           },
           data: {
             type: "blood_request",

@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Add this import
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
@@ -103,26 +104,69 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _setupNotificationHandling() {
-    _pushNotificationService.onNotificationOpened = (type, referenceId) {
+    _pushNotificationService.onNotificationOpened = (type, referenceId) async {
       debugPrint(
           '📱 Notification opened - Type: $type, Reference: $referenceId');
-
-      if (navigatorKey.currentState != null) {
-        switch (type) {
-          case 'blood_request':
-            navigatorKey.currentState!.pushNamed(AppRoutes.home);
-            break;
-          case 'request_accepted':
-            navigatorKey.currentState!.pushNamed(AppRoutes.notifications);
-            break;
-          case 'donation_reminder':
-            navigatorKey.currentState!.pushNamed(AppRoutes.donation);
-            break;
-          case 'test':
-            navigatorKey.currentState!.pushNamed(AppRoutes.notifications);
-            break;
-          default:
-            navigatorKey.currentState!.pushNamed(AppRoutes.notifications);
+      if (referenceId != null && referenceId.isNotEmpty) {
+        // Fetch the request document from Firestore
+        final doc = await FirebaseFirestore.instance
+            .collection('requests')
+            .doc(referenceId)
+            .get();
+        if (doc.exists) {
+          final data = doc.data()!;
+          final encryptionService = EncryptionService();
+          final requesterId = data['requesterId'] ?? data['requester_id'] ?? '';
+          // Decrypt sensitive fields
+          final patientName = await encryptionService.decryptWithUserKey(
+              data['patientName'] ?? data['patient_name'] ?? '', requesterId);
+          final bloodGroup = data['bloodGroup'] ?? data['blood_group'] ?? '';
+          final hospital = await encryptionService.decryptWithUserKey(
+              data['hospital'] ?? '', requesterId);
+          final location = await encryptionService.decryptWithUserKey(
+              data['location'] ?? '', requesterId);
+          final contactNumber = await encryptionService.decryptWithUserKey(
+              data['contactNumber'] ?? data['contact_number'] ?? '',
+              requesterId);
+          // Show the details (replace with your own navigation/dialog logic)
+          showDialog(
+            context: navigatorKey.currentContext!,
+            builder: (context) => AlertDialog(
+              title: Text('Blood Request Details'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Patient: $patientName'),
+                  Text('Blood Group: $bloodGroup'),
+                  Text('Hospital: $hospital'),
+                  Text('Location: $location'),
+                  Text('Contact: $contactNumber'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Close'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          // Show error if request not found
+          showDialog(
+            context: navigatorKey.currentContext!,
+            builder: (context) => AlertDialog(
+              title: Text('Request Not Found'),
+              content: Text('The blood request could not be found.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Close'),
+                ),
+              ],
+            ),
+          );
         }
       }
     };

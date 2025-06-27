@@ -1140,14 +1140,15 @@ class _HomeScreenState extends State<HomeScreen> {
       // Accept request using Firebase service
       await _firebaseService.acceptRequest(request.id!, user.id!);
 
-      // Create notification for requester
-      if (request.requesterId.isNotEmpty) {
+      // Create notification for requester if not self
+      if (request.requesterId.isNotEmpty && request.requesterId != user.id) {
         await _firebaseService.createNotification(
           userId: request.requesterId,
           title: 'New Response to Blood Request',
           message:
               '${user.name} has accepted your blood request for ${request.bloodGroup}',
           type: 'request',
+          referenceId: request.id!,
           data: {
             'requestId': request.id!,
             'bloodType': request.bloodGroup,

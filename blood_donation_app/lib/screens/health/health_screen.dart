@@ -238,6 +238,17 @@ class _HealthScreenState extends State<HealthScreen> {
         ? DateFormat('MMM d, yyyy').format(lastDonation)
         : 'Never';
 
+    // Parse numeric health data fields from decrypted strings
+    double? weight = _healthData?['weight'] != null
+        ? double.tryParse(_healthData!['weight'].toString())
+        : null;
+    double? height = _healthData?['height'] != null
+        ? double.tryParse(_healthData!['height'].toString())
+        : null;
+    double? hemoglobin = _healthData?['hemoglobin'] != null
+        ? double.tryParse(_healthData!['hemoglobin'].toString())
+        : null;
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -313,23 +324,16 @@ class _HealthScreenState extends State<HealthScreen> {
             const Divider(),
             const SizedBox(height: 8),
             _buildHealthDataRow('Last Donation', formattedLastDonation),
-            _buildHealthDataRow(
-                'Weight',
-                _healthData?['weight'] != null && _healthData!['weight'] > 0
-                    ? '${_healthData!['weight']} kg'
-                    : 'Not recorded'),
-            _buildHealthDataRow(
-                'Height',
-                _healthData?['height'] != null && _healthData!['height'] > 0
-                    ? '${_healthData!['height']} cm'
-                    : 'Not recorded'),
+            _buildHealthDataRow('Weight',
+                weight != null && weight > 0 ? '$weight kg' : 'Not recorded'),
+            _buildHealthDataRow('Height',
+                height != null && height > 0 ? '$height cm' : 'Not recorded'),
             _buildHealthDataRow('Blood Pressure',
                 _healthData?['bloodPressure'] ?? 'Not recorded'),
             _buildHealthDataRow(
                 'Hemoglobin',
-                _healthData?['hemoglobin'] != null &&
-                        _healthData!['hemoglobin'] > 0
-                    ? '${_healthData!['hemoglobin']} g/dL'
+                hemoglobin != null && hemoglobin > 0
+                    ? '$hemoglobin g/dL'
                     : 'Not recorded'),
             _buildHealthDataRow(
                 'Last Checkup',

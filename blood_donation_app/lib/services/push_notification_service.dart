@@ -31,6 +31,9 @@ class PushNotificationService {
   );
 
   Function(String? type, String? referenceId)? onNotificationOpened;
+  Function(String? type, String? referenceId, String? requesterId)?
+      onNotificationOpenedWithRequester;
+  UserModel? _currentUser;
 
   Future<void> initialize([UserModel? updatedUserData]) async {
     try {
@@ -83,6 +86,8 @@ class PushNotificationService {
           await subscribeToTopic(bloodTopic);
         }
       }
+
+      _currentUser = updatedUserData;
 
       debugPrint('✅ Push notification service initialized successfully');
     } catch (e) {
@@ -261,7 +266,39 @@ class PushNotificationService {
     }
   }
 
-  void _onNotificationTapped(NotificationResponse notificationResponse) {
+  void _handleMessageOpened(RemoteMessage message) async {
+    try {
+      debugPrint('📱 Message opened: ${message.notification?.title}');
+      debugPrint('📱 Message data: ${message.data}');
+
+      final data = message.data;
+      final type = data['type'] as String? ?? 'general';
+      final referenceId = data['referenceId'] as String? ?? '';
+
+      if (referenceId.isNotEmpty) {
+        final doc = await FirebaseFirestore.instance
+            .collection('requests')
+            .doc(referenceId)
+            .get();
+        if (doc.exists) {
+          final requestData = doc.data()!;
+          final requesterId =
+              requestData['requesterId'] ?? requestData['requester_id'];
+          if (_currentUser != null && requesterId == _currentUser!.id) {
+            debugPrint('🔕 Ignoring notification for own request');
+            return;
+          }
+        }
+      }
+      if (onNotificationOpened != null) {
+        onNotificationOpened!(type, referenceId);
+      }
+    } catch (e) {
+      debugPrint('❌ Error handling message opened: $e');
+    }
+  }
+
+  void _onNotificationTapped(NotificationResponse notificationResponse) async {
     try {
       final payload = notificationResponse.payload;
       debugPrint('📱 Notification tapped with payload: $payload');
@@ -272,12 +309,23 @@ class PushNotificationService {
           final type = data['type'] as String? ?? 'general';
           final referenceId = data['referenceId'] as String? ?? '';
 
-          debugPrint('📱 Notification type: $type, referenceId: $referenceId');
-
+          if (referenceId.isNotEmpty) {
+            final doc = await FirebaseFirestore.instance
+                .collection('requests')
+                .doc(referenceId)
+                .get();
+            if (doc.exists) {
+              final requestData = doc.data()!;
+              final requesterId =
+                  requestData['requesterId'] ?? requestData['requester_id'];
+              if (_currentUser != null && requesterId == _currentUser!.id) {
+                debugPrint('🔕 Ignoring notification for own request');
+                return;
+              }
+            }
+          }
           if (onNotificationOpened != null) {
             onNotificationOpened!(type, referenceId);
-          } else {
-            debugPrint('⚠️ onNotificationOpened callback is not set');
           }
         } catch (e) {
           debugPrint('❌ Error parsing notification payload: $e');
@@ -285,23 +333,6 @@ class PushNotificationService {
       }
     } catch (e) {
       debugPrint('❌ Error handling notification tap: $e');
-    }
-  }
-
-  void _handleMessageOpened(RemoteMessage message) {
-    try {
-      debugPrint('📱 Message opened: ${message.notification?.title}');
-      debugPrint('📱 Message data: ${message.data}');
-
-      final data = message.data;
-      final type = data['type'] as String? ?? 'general';
-      final referenceId = data['referenceId'] as String? ?? '';
-
-      if (onNotificationOpened != null) {
-        onNotificationOpened!(type, referenceId);
-      }
-    } catch (e) {
-      debugPrint('❌ Error handling message opened: $e');
     }
   }
 

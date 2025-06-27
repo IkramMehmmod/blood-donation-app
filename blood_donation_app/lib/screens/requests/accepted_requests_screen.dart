@@ -291,6 +291,20 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
+                          Text(
+                            postedTime,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 2,
+                      ),
+                      Row(
+                        children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
@@ -307,16 +321,8 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            postedTime,
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey,
-                                    ),
-                          ),
                         ],
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -352,9 +358,12 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
               children: [
                 const Icon(Icons.person_outline, size: 20, color: Colors.grey),
                 const SizedBox(width: 8),
-                Text(
-                  'Requester: ${request.requesterName}',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                Expanded(
+                  child: Text(
+                    'Requester: ${request.requesterName}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -368,6 +377,7 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
                   child: Text(
                     'Location: ${request.location}',
                     style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -430,6 +440,8 @@ class _AcceptedRequestsScreenState extends State<AcceptedRequestsScreen> {
                     Text(
                       request.additionalInfo,
                       style: Theme.of(context).textTheme.bodyMedium,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 3,
                     ),
                   ],
                 ),

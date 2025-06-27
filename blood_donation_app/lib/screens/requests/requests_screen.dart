@@ -375,15 +375,18 @@ class _RequestsScreenState extends State<RequestsScreen>
       // Accept the request using Firebase service
       await _firebaseService.acceptRequest(requestId, user.id!);
 
-      // Get requester ID and create notification if valid
+      // Get requester ID and create notification if valid and not self
       final requesterId = await _firebaseService.getRequesterId(requestId);
-      if (requesterId != null && requesterId.isNotEmpty) {
+      if (requesterId != null &&
+          requesterId.isNotEmpty &&
+          requesterId != user.id) {
         await _firebaseService.createNotification(
           userId: requesterId,
           title: 'New Response to Blood Request',
           message:
               '${user.name} has accepted your blood request for $bloodType',
           type: 'request',
+          referenceId: requestId,
           data: {
             'requestId': requestId,
             'bloodType': bloodType,
