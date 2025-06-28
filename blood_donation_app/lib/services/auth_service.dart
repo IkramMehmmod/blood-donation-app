@@ -6,11 +6,10 @@ import 'push_notification_service.dart';
 import 'encryption_service.dart';
 
 class AuthService extends ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseService _firebaseService = FirebaseService();
-  final PushNotificationService _pushNotificationService =
-      PushNotificationService();
-  final EncryptionService _encryptionService = EncryptionService();
+  final FirebaseAuth _auth;
+  final FirebaseService _firebaseService;
+  final PushNotificationService _pushNotificationService;
+  final EncryptionService _encryptionService;
 
   UserModel? _currentUser;
   bool _isLoading = false;
@@ -21,7 +20,11 @@ class AuthService extends ChangeNotifier {
   bool get isGuest => _isGuest;
   User? get firebaseUser => _auth.currentUser;
 
-  AuthService() {
+  AuthService()
+      : _auth = FirebaseAuth.instance,
+        _firebaseService = FirebaseService(),
+        _pushNotificationService = PushNotificationService(),
+        _encryptionService = EncryptionService() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
   }
 

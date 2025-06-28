@@ -4,9 +4,11 @@ import '../../theme/app_theme.dart';
 import '../../widgets/custom_button.dart';
 import '../../routes/app_routes.dart';
 import '../../models/user_model.dart';
+import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
+  final IFirebaseService? firebaseService;
   final String email;
   final String name;
   final String phone;
@@ -21,6 +23,7 @@ class EmailVerificationScreen extends StatefulWidget {
 
   const EmailVerificationScreen({
     super.key,
+    this.firebaseService,
     required this.email,
     required this.name,
     required this.phone,
@@ -40,6 +43,7 @@ class EmailVerificationScreen extends StatefulWidget {
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  late final IFirebaseService _firebaseService;
   bool _isLoading = false;
   bool _isResending = false;
   int _resendCountdown = 0;
@@ -49,6 +53,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   @override
   void initState() {
     super.initState();
+    _firebaseService = widget.firebaseService ?? FirebaseService();
     debugPrint(
         'EmailVerificationScreen: initState for email: \\${widget.email}');
     _sendVerificationEmail();
@@ -132,7 +137,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       debugPrint('Reloaded user. Verified: \\${user.emailVerified}');
       if (user.emailVerified) {
         debugPrint('Email verified. Creating Firestore user...');
-        // Create Firestore user here
         final userModel = UserModel(
           id: user.uid,
           email: widget.email,
@@ -149,13 +153,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
-        // You may need to import and use your AuthService or FirebaseService here
-        // For example:
-        // await Provider.of<AuthService>(context, listen: false).createFirestoreUser(userModel);
-        // Or, if you have a FirebaseService instance:
-        // await FirebaseService().createUser(userModel);
-        // For now, let's use FirebaseService directly:
-        await FirebaseService().createUser(userModel);
+        await _firebaseService.createUser(userModel);
         debugPrint('Firestore user created for: \\${userModel.email}');
         Navigator.pushNamedAndRemoveUntil(
             context, AppRoutes.home, (route) => false);

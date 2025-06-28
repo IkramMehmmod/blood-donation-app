@@ -5,23 +5,27 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
+import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
-import '../../widgets/custom_button.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/not_signed_in_message.dart';
+import '../../widgets/custom_button.dart';
+import 'update_health_screen.dart';
 
 class HealthScreen extends StatefulWidget {
-  const HealthScreen({super.key});
+  final IFirebaseService? firebaseService;
+
+  const HealthScreen({Key? key, this.firebaseService}) : super(key: key);
 
   @override
   State<HealthScreen> createState() => _HealthScreenState();
 }
 
 class _HealthScreenState extends State<HealthScreen> {
-  final FirebaseService _firebaseService = FirebaseService();
-  bool _isLoading = false;
+  late IFirebaseService _firebaseService;
   Map<String, dynamic>? _healthData;
   List<Map<String, dynamic>> _donationHistory = [];
+  bool _isLoading = true;
   bool _isEligible = true;
   DateTime? _nextDonationDate;
 
@@ -59,6 +63,7 @@ class _HealthScreenState extends State<HealthScreen> {
   @override
   void initState() {
     super.initState();
+    _firebaseService = widget.firebaseService ?? FirebaseService();
     _loadHealthData();
   }
 

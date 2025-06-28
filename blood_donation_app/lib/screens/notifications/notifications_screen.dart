@@ -4,20 +4,21 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/notification_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
 import '../../widgets/not_signed_in_message.dart';
-import '../../models/request_model.dart';
 import '../../services/encryption_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({super.key});
+  final IFirebaseService? firebaseService;
+  const NotificationsScreen({super.key, this.firebaseService});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final FirebaseService _firebaseService = FirebaseService();
+  late final IFirebaseService _firebaseService;
   final Map<String, Map<String, dynamic>> _userCache = {};
   final Map<String, Map<String, dynamic>> _decryptedRequestCache = {};
   final Set<String> _loadingRequests = {};
@@ -25,6 +26,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
     super.initState();
+    _firebaseService = widget.firebaseService ?? FirebaseService();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadNotifications();
     });

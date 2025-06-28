@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
+import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
 
 import '../../widgets/custom_dropdown.dart';
@@ -12,14 +13,15 @@ import 'package:intl/intl.dart';
 import '../../widgets/not_signed_in_message.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final IFirebaseService? firebaseService;
+  const ProfileScreen({super.key, this.firebaseService});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final FirebaseService _firebaseService = FirebaseService();
+  late final IFirebaseService _firebaseService;
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -80,6 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _firebaseService = widget.firebaseService ?? FirebaseService();
     _loadUserData();
     _loadAchievements();
   }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../services/firebase_service.dart'; // Ensure this path is correct
+import '../../services/i_firebase_service.dart';
+import '../../services/firebase_service.dart';
 
 class SupportScreen extends StatefulWidget {
-  const SupportScreen({super.key});
+  final IFirebaseService? firebaseService;
+  const SupportScreen({super.key, this.firebaseService});
 
   @override
   State<SupportScreen> createState() => _SupportScreenState();

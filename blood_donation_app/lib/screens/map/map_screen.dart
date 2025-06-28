@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:blood_donation_app/services/location_service.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,7 +10,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final LocationService? locationService;
+  const MapScreen({super.key, this.locationService});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -36,7 +38,7 @@ class _MapScreenState extends State<MapScreen> {
 
   // User location
   LocationData? _currentLocation;
-  final Location _location = Location();
+  late final LocationService _locationService;
 
   // Markers
   List<Marker> _markers = [];
@@ -49,7 +51,7 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     // Initialize map controller
     _mapController = MapController();
-
+    _locationService = widget.locationService ?? RealLocationService();
     // Start location request in background
     _initializeLocationAndData();
   }
@@ -64,9 +66,9 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<bool> _checkLocationPermissions() async {
     try {
-      bool serviceEnabled = await _location.serviceEnabled();
+      bool serviceEnabled = await _locationService.serviceEnabled();
       if (!serviceEnabled) {
-        serviceEnabled = await _location.requestService();
+        serviceEnabled = await _locationService.requestService();
         if (!serviceEnabled) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -77,9 +79,10 @@ class _MapScreenState extends State<MapScreen> {
         }
       }
 
-      PermissionStatus permissionStatus = await _location.hasPermission();
+      PermissionStatus permissionStatus =
+          await _locationService.hasPermission();
       if (permissionStatus == PermissionStatus.denied) {
-        permissionStatus = await _location.requestPermission();
+        permissionStatus = await _locationService.requestPermission();
         if (permissionStatus != PermissionStatus.granted) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -105,7 +108,7 @@ class _MapScreenState extends State<MapScreen> {
 
     try {
       // Get current location
-      _currentLocation = await _location.getLocation();
+      _currentLocation = await _locationService.getLocation();
 
       if (_currentLocation != null && mounted) {
         setState(() {

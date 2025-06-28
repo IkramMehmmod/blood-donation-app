@@ -4,18 +4,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/auth_service.dart';
 import '../../services/theme_service.dart';
+import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
 import '../about/about_us_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final IFirebaseService? firebaseService;
+  const SettingsScreen({super.key, this.firebaseService});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final FirebaseService _firebaseService = FirebaseService();
+  late final IFirebaseService _firebaseService;
   bool _notificationsEnabled = true;
   bool _locationEnabled = true;
   bool _isLoading = false;
@@ -25,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    _firebaseService = widget.firebaseService ?? FirebaseService();
     _loadSettings();
   }
 

@@ -8,8 +8,9 @@ import '../models/user_model.dart';
 import '../models/donation_model.dart';
 import '../models/request_model.dart';
 import '../services/encryption_service.dart';
+import 'i_firebase_service.dart';
 
-class FirebaseService {
+class FirebaseService implements IFirebaseService {
   static final FirebaseService _instance = FirebaseService._internal();
   factory FirebaseService() => _instance;
   FirebaseService._internal();
@@ -22,10 +23,12 @@ class FirebaseService {
   static const String cloudinaryUploadPreset = 'image_upload';
   static const String cloudinaryApiKey = '733145926891947';
 
+  @override
   FirebaseFirestore get firestore => _firestore;
   FirebaseAuth get auth => _auth;
 
   // User Management
+  @override
   Future<void> createUser(UserModel user) async {
     try {
       debugPrint('Creating user in Firestore: ${user.email}');
@@ -56,6 +59,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<UserModel?> getUser(String userId) async {
     try {
       debugPrint('Getting user from Firestore: $userId');
@@ -92,6 +96,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<void> updateUser(UserModel user) async {
     try {
       debugPrint('Updating user in Firestore: ${user.email}');
@@ -148,6 +153,7 @@ class FirebaseService {
   }
 
   // Create donation record when user accepts a request
+  @override
   Future<void> createDonationFromAcceptedRequest(
       String userId, RequestModel request) async {
     try {
@@ -175,6 +181,7 @@ class FirebaseService {
   }
 
   // Check if user can donate (56 days = 8 weeks rule)
+  @override
   bool canUserDonate(DateTime? lastDonation) {
     if (lastDonation == null) return true;
 
@@ -185,6 +192,7 @@ class FirebaseService {
   }
 
   // Get days until user can donate again (56 days = 8 weeks rule)
+  @override
   int getDaysUntilCanDonate(DateTime? lastDonation) {
     if (lastDonation == null) return 0;
 
@@ -196,6 +204,7 @@ class FirebaseService {
     return canDonateDate.difference(now).inDays + 1;
   }
 
+  @override
   Future<List<DonationModel>> getUserDonations(String userId) async {
     try {
       final querySnapshot = await _firestore
@@ -252,6 +261,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<Map<String, int>> getUserDonationStats(String userId) async {
     try {
       final donations = await getUserDonations(userId);
@@ -278,6 +288,7 @@ class FirebaseService {
   }
 
   // Request Management
+  @override
   Future<void> addRequest(RequestModel request) async {
     try {
       final requestData = request.toJson();
@@ -322,6 +333,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<List<RequestModel>> getRequests() async {
     try {
       final querySnapshot = await _firestore
@@ -365,6 +377,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<List<RequestModel>> getUserRequests(String userId) async {
     try {
       final querySnapshot = await _firestore
@@ -398,6 +411,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<List<RequestModel>> getAcceptedRequests(String userId) async {
     try {
       final querySnapshot = await _firestore
@@ -431,6 +445,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<List<Map<String, dynamic>>> getResponderDetails(
       List<String> responderIds) async {
     try {
@@ -573,6 +588,7 @@ class FirebaseService {
   }
 
   // Enhanced accept request with automatic donation creation
+  @override
   Future<void> acceptRequest(String requestId, String userId) async {
     try {
       // Add user to responders array and update status
@@ -603,6 +619,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<String?> getRequesterId(String requestId) async {
     try {
       final doc = await _firestore.collection('requests').doc(requestId).get();
@@ -617,6 +634,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<void> closeRequest(String requestId) async {
     try {
       await _firestore.collection('requests').doc(requestId).update({
@@ -633,6 +651,7 @@ class FirebaseService {
     return await getRequests();
   }
 
+  @override
   Future<void> closeExpiredRequests() async {
     try {
       final now = DateTime.now();
@@ -663,6 +682,7 @@ class FirebaseService {
 
   // Notification Management
   // Notification Management Extensions
+  @override
   Future<List<Map<String, dynamic>>> getUserNotifications(String userId) async {
     try {
       final snapshot = await _firestore
@@ -709,6 +729,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<void> createNotification({
     required String userId,
     required String title,
@@ -800,6 +821,7 @@ class FirebaseService {
   }
 
   // Image Upload to Cloudinary
+  @override
   Future<String?> uploadImageToCloudinary(File imageFile, String userId) async {
     try {
       if (cloudinaryCloudName == 'your_cloud_name' ||
@@ -915,6 +937,7 @@ class FirebaseService {
   }
 
   // FAQ Management
+  @override
   Future<List<Map<String, dynamic>>> getFAQs() async {
     try {
       final querySnapshot =
@@ -930,6 +953,7 @@ class FirebaseService {
   }
 
   // Health Data Management
+  @override
   Future<Map<String, dynamic>?> getHealthData(String userId) async {
     try {
       final doc = await _firestore.collection('healthData').doc(userId).get();
@@ -957,6 +981,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<void> updateHealthData(
       String userId, Map<String, dynamic> healthData) async {
     try {
@@ -972,6 +997,7 @@ class FirebaseService {
   }
 
   // User Settings Management
+  @override
   Future<Map<String, dynamic>?> getUserSettings(String userId) async {
     try {
       final doc =
@@ -986,6 +1012,7 @@ class FirebaseService {
     }
   }
 
+  @override
   Future<void> updateUserSettings(
       String userId, Map<String, dynamic> settings) async {
     try {
@@ -1001,6 +1028,7 @@ class FirebaseService {
   }
 
   // User Data Management
+  @override
   Future<void> deleteUserData(String userId) async {
     try {
       // Delete user document
@@ -1144,6 +1172,7 @@ class FirebaseService {
   }
 
   // Bug Report Management
+  @override
   Future<void> submitBugReport({
     required String userId,
     required String title,
@@ -1275,6 +1304,7 @@ class FirebaseService {
   }
 
   // Sync user's last donation date from donation history
+  @override
   Future<void> syncUserLastDonationDate(String userId) async {
     try {
       final donations = await getUserDonations(userId);
