@@ -23,8 +23,8 @@ class EligibilityStatus extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: isEligible
-                ? Colors.green.withAlpha((255 * 0.1).round())
-                : Colors.orange.withAlpha((255 * 0.1).round()),
+                ? Colors.green.withValues(alpha: 0.1)
+                : Colors.orange.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(

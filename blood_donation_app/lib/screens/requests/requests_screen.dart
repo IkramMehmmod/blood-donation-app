@@ -4,14 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/request_model.dart';
 import '../../services/auth_service.dart';
-import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/not_signed_in_message.dart';
 
 class RequestsScreen extends StatefulWidget {
-  final IFirebaseService? firebaseService;
-  const RequestsScreen({super.key, this.firebaseService});
+  const RequestsScreen({super.key});
 
   @override
   State<RequestsScreen> createState() => _RequestsScreenState();
@@ -19,8 +17,8 @@ class RequestsScreen extends StatefulWidget {
 
 class _RequestsScreenState extends State<RequestsScreen>
     with SingleTickerProviderStateMixin {
-  late final IFirebaseService _firebaseService;
   late TabController _tabController;
+  final FirebaseService _firebaseService = FirebaseService();
 
   // Form controllers for creating a new request
   final _patientNameController = TextEditingController();
@@ -61,7 +59,6 @@ class _RequestsScreenState extends State<RequestsScreen>
   @override
   void initState() {
     super.initState();
-    _firebaseService = widget.firebaseService ?? FirebaseService();
     _tabController = TabController(length: 2, vsync: this);
 
     // Pre-fill contact number if available
@@ -914,6 +911,23 @@ class _RequestsScreenState extends State<RequestsScreen>
                             ),
                           ),
                           const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: statusColor.withAlpha((255 * 0.1).round()),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              status,
+                              style: TextStyle(
+                                color: statusColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           Text(
                             postedTime,
                             style:
@@ -922,23 +936,6 @@ class _RequestsScreenState extends State<RequestsScreen>
                                     ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 2),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: statusColor.withAlpha((255 * 0.1).round()),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          status,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -1022,7 +1019,6 @@ class _RequestsScreenState extends State<RequestsScreen>
             const SizedBox(height: 16),
             // Consistent button layout for both tabs
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
@@ -1041,59 +1037,40 @@ class _RequestsScreenState extends State<RequestsScreen>
                   ),
                 ),
                 const SizedBox(width: 12),
-                if (isMyRequest)
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: onClosePressed,
-                      icon: Icon(
-                        status == 'open' ? Icons.close : Icons.check_circle,
-                        size: 18,
-                      ),
-                      label:
-                          Text(status == 'open' ? 'Close Request' : 'Closed'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            status == 'open' ? Colors.red : Colors.grey,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: isMyRequest ? onClosePressed : onAcceptPressed,
+                    icon: Icon(
+                      isMyRequest
+                          ? (status == 'open'
+                              ? Icons.close
+                              : Icons.check_circle)
+                          : (onAcceptPressed == null
+                              ? Icons.check_circle
+                              : Icons.volunteer_activism),
+                      size: 18,
                     ),
-                  )
-                else if (onAcceptPressed != null)
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: onAcceptPressed,
-                      icon: Icon(Icons.volunteer_activism, size: 18),
-                      label: const Text('Accept Request'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
+                    label: Text(
+                      isMyRequest
+                          ? (status == 'open' ? 'Close Request' : 'Closed')
+                          : (onAcceptPressed == null
+                              ? 'Accepted'
+                              : 'Accept Request'),
                     ),
-                  )
-                else
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: null,
-                      icon: Icon(Icons.check_circle, size: 18),
-                      label: Text(onAcceptPressed == null ? 'Accepted' : ''),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isMyRequest
+                          ? (status == 'open' ? Colors.red : Colors.grey)
+                          : (onAcceptPressed == null
+                              ? Colors.green
+                              : Theme.of(context).colorScheme.primary),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
+                ),
               ],
             ),
           ],
@@ -1452,6 +1429,12 @@ class _RequestsScreenState extends State<RequestsScreen>
     final formattedDate =
         DateFormat('MMM d, yyyy - h:mm a').format(request.createdAt);
 
+    // Get current user to check if they are the requester
+    final currentUser =
+        Provider.of<AuthService>(context, listen: false).currentUser;
+    final isRequester =
+        currentUser != null && request.requesterId == currentUser.id;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1528,11 +1511,8 @@ class _RequestsScreenState extends State<RequestsScreen>
             },
             child: const Text('Close'),
           ),
-          if (request.status == 'open' &&
-              request.requesterId ==
-                  Provider.of<AuthService>(context, listen: false)
-                      .currentUser
-                      ?.id)
+          // Only show close request button if current user is the requester and request is open
+          if (request.status == 'open' && isRequester)
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();

@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../services/notification_service.dart';
-import '../../services/auth_service.dart';
-import '../../services/i_firebase_service.dart';
-import '../../services/firebase_service.dart';
-import '../../widgets/not_signed_in_message.dart';
-import '../../services/encryption_service.dart';
+import 'package:blood_donation_app/services/auth_service.dart';
+import 'package:blood_donation_app/services/notification_service.dart';
+import 'package:blood_donation_app/services/firebase_service.dart';
+// import 'package:blood_donation_app/models/notification_model.dart'; // Unused
+// import 'package:blood_donation_app/models/donation_model.dart'; // Unused
+import 'package:blood_donation_app/widgets/not_signed_in_message.dart';
+import 'package:blood_donation_app/services/encryption_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
-  final IFirebaseService? firebaseService;
-  const NotificationsScreen({super.key, this.firebaseService});
+  const NotificationsScreen({super.key});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  late final IFirebaseService _firebaseService;
+  final FirebaseService _firebaseService = FirebaseService();
   final Map<String, Map<String, dynamic>> _userCache = {};
   final Map<String, Map<String, dynamic>> _decryptedRequestCache = {};
   final Set<String> _loadingRequests = {};
@@ -26,18 +26,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
     super.initState();
-    _firebaseService = widget.firebaseService ?? FirebaseService();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadNotifications();
-    });
+    _loadNotifications();
   }
 
   Future<void> _loadNotifications() async {
-    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+    final user = context.read<AuthService>().currentUser;
     if (user != null) {
       final notificationService =
           Provider.of<NotificationService>(context, listen: false);
-      // Using fetchNotifications for initial load, while the Consumer will handle real-time updates via the stream
       await notificationService.fetchNotifications(user.id!);
     }
   }

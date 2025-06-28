@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../services/i_firebase_service.dart';
-import '../../services/firebase_service.dart';
+import '../../services/firebase_service.dart'; // Ensure this path is correct
 
 class SupportScreen extends StatefulWidget {
-  final IFirebaseService? firebaseService;
-  const SupportScreen({super.key, this.firebaseService});
+  const SupportScreen({super.key});
 
   @override
   State<SupportScreen> createState() => _SupportScreenState();
@@ -196,7 +194,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 color: Theme.of(context)
                     .colorScheme
                     .onSurface
-                    .withAlpha((255 * 0.8).round()),
+                    .withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -229,7 +227,7 @@ class _SupportScreenState extends State<SupportScreen> {
                   color: Theme.of(context)
                       .colorScheme
                       .onSurface
-                      .withAlpha((255 * 0.7).round()),
+                      .withValues(alpha: 0.7),
                 ),
           ),
           SizedBox(height: 24),
@@ -360,7 +358,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 color: Theme.of(context)
                     .colorScheme
                     .primary
-                    .withAlpha((255 * 0.1).round()),
+                    .withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -387,7 +385,7 @@ class _SupportScreenState extends State<SupportScreen> {
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withAlpha((255 * 0.7).round()),
+                              .withValues(alpha: 0.7),
                         ),
                   ),
                 ],

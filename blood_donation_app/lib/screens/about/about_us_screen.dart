@@ -50,7 +50,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withAlpha((255 * 0.7).round()),
+                              .withValues(alpha: 0.7),
                         ),
                   ),
                 ],
@@ -147,7 +147,7 @@ class AboutUsScreen extends StatelessWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .primary
-                                .withAlpha((255 * 0.1).round()),
+                                .withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -381,7 +381,7 @@ class AboutUsScreen extends StatelessWidget {
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withAlpha((255 * 0.7).round()),
+                              .withValues(alpha: 0.7),
                         ),
                   ),
                   Text(

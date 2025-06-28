@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Add this import
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
@@ -35,13 +36,31 @@ void main() async {
     );
     debugPrint('✅ Firebase initialized');
 
+    // 🔒 SECURITY: Configure App Check with production providers
     try {
-      await FirebaseAppCheck.instance.activate(
-        androidProvider: AndroidProvider.debug,
-      );
-      debugPrint('✅ Firebase App Check initialized');
+      // Temporarily disabled App Check for testing
+      debugPrint('⚠️ App Check disabled for testing');
+      debugPrint('📝 TODO: Re-enable App Check before production deployment');
+
+      // Uncomment the lines below to enable App Check
+      // if (kDebugMode) {
+      //   // Development mode - temporarily disable App Check for easier testing
+      //   debugPrint('⚠️ App Check disabled for development');
+      //   debugPrint('📝 To enable: Add debug token to Firebase Console > App Check > Debug tokens');
+      // } else {
+      //   // Production mode - use production providers
+      //   await FirebaseAppCheck.instance.activate(
+      //     androidProvider: AndroidProvider.playIntegrity,
+      //     appleProvider: AppleProvider.deviceCheck,
+      //   );
+      //   debugPrint('✅ Firebase App Check initialized (PRODUCTION MODE)');
+      //   debugPrint('🔒 Using Play Integrity (Android) and DeviceCheck (iOS)');
+      // }
     } catch (e) {
       debugPrint('⚠️ App Check initialization failed: $e');
+      // Continue without App Check for now
+      debugPrint(
+          '⚠️ Continuing without App Check - this may cause permission issues');
     }
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

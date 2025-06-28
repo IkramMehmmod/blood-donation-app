@@ -144,7 +144,7 @@ class _DonersScreenState extends State<DonersScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.red.withAlpha((255 * 0.2).round()),
+                      color: Colors.red.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -265,8 +265,7 @@ class _DonersScreenState extends State<DonersScreen> {
                             });
                           },
                           backgroundColor: Colors.white,
-                          selectedColor:
-                              Colors.red.withAlpha((255 * 0.2).round()),
+                          selectedColor: Colors.red.withValues(alpha: 0.2),
                           checkmarkColor: Colors.red,
                           side: BorderSide(
                             color: isSelected ? Colors.red : Colors.grey[300]!,
@@ -351,8 +350,7 @@ class _DonersScreenState extends State<DonersScreen> {
                           backgroundImage: donor.imageUrl.isNotEmpty
                               ? NetworkImage(donor.imageUrl)
                               : null,
-                          backgroundColor:
-                              Colors.red.withAlpha((255 * 0.1).round()),
+                          backgroundColor: Colors.red.withValues(alpha: 0.1),
                           child: donor.imageUrl.isEmpty
                               ? Text(
                                   donor.name.isNotEmpty
@@ -396,8 +394,7 @@ class _DonersScreenState extends State<DonersScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.red
-                                          .withAlpha((255 * 0.1).round()),
+                                      color: Colors.red.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -416,10 +413,9 @@ class _DonersScreenState extends State<DonersScreen> {
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: canDonate
-                                          ? Colors.green
-                                              .withAlpha((255 * 0.1).round())
+                                          ? Colors.green.withValues(alpha: 0.1)
                                           : Colors.orange
-                                              .withAlpha((255 * 0.1).round()),
+                                              .withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -487,7 +483,7 @@ class _DonersScreenState extends State<DonersScreen> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );
@@ -524,7 +520,7 @@ class _DonersScreenState extends State<DonersScreen> {
                 backgroundImage: donor.imageUrl.isNotEmpty
                     ? NetworkImage(donor.imageUrl)
                     : null,
-                backgroundColor: Colors.red.withAlpha((255 * 0.1).round()),
+                backgroundColor: Colors.red.withValues(alpha: 0.1),
                 child: donor.imageUrl.isEmpty
                     ? Text(
                         donor.name.isNotEmpty
@@ -558,7 +554,7 @@ class _DonersScreenState extends State<DonersScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.red.withAlpha((255 * 0.1).round()),
+                            color: Colors.red.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -577,8 +573,8 @@ class _DonersScreenState extends State<DonersScreen> {
                               horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
                             color: canDonate
-                                ? Colors.green.withAlpha((255 * 0.1).round())
-                                : Colors.orange.withAlpha((255 * 0.1).round()),
+                                ? Colors.green.withValues(alpha: 0.1)
+                                : Colors.orange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(

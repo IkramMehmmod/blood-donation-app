@@ -472,10 +472,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .primary
-            .withAlpha((255 * 0.1).round()),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -788,7 +785,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _urgentRequests.isEmpty
-            ? Container(
+            ? SizedBox(
                 width: double.infinity,
                 child: Card(
                   elevation: 2,
@@ -877,7 +874,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Theme.of(context)
                     .colorScheme
                     .primary
-                    .withAlpha((255 * 0.1).round()),
+                    .withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: icon,
@@ -924,7 +921,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Theme.of(context)
                         .colorScheme
                         .primary
-                        .withAlpha((255 * 0.1).round()),
+                        .withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(

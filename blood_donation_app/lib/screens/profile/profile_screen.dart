@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
-import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
 
 import '../../widgets/custom_dropdown.dart';
@@ -13,15 +12,14 @@ import 'package:intl/intl.dart';
 import '../../widgets/not_signed_in_message.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final IFirebaseService? firebaseService;
-  const ProfileScreen({super.key, this.firebaseService});
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late final IFirebaseService _firebaseService;
+  final FirebaseService _firebaseService = FirebaseService();
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -39,12 +37,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final FocusNode _stateFocusNode = FocusNode();
   final FocusNode _countryFocusNode = FocusNode();
 
-  String _selectedBloodGroup = 'A+';
-  bool _isDonor = false;
-  File? _imageFile;
   bool _isLoading = false;
+  final bool _isUpdating = false;
+  bool _isDonor = false;
+  String _selectedBloodGroup = 'A+';
+  File? _imageFile;
   int _totalDonations = 0;
-  int _points = 0;
   List<Map<String, dynamic>> _achievements = [];
 
   // Track which fields are being edited
@@ -82,7 +80,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _firebaseService = widget.firebaseService ?? FirebaseService();
     _loadUserData();
     _loadAchievements();
   }
@@ -190,7 +187,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         _totalDonations = donationCount;
-        _points = donationCount * 10; // 10 points per donation
         _achievements = [
           {
             'title': 'First Time Donor',

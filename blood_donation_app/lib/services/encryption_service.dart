@@ -7,11 +7,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EncryptionService {
+  static final EncryptionService _instance = EncryptionService._internal();
+  factory EncryptionService() => _instance;
+  EncryptionService._internal();
+
   static const String _localKeyName = 'local_encryption_key';
   static const String _localIvName = 'local_encryption_iv';
-  final FlutterSecureStorage _secureStorage;
-  final FirebaseFirestore _firestore;
-  final FirebaseAuth _auth;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Cache the encryption keys
   String? _localEncryptionKey;
@@ -20,11 +24,6 @@ class EncryptionService {
 
   // Track initialization state
   bool _isInitialized = false;
-
-  EncryptionService()
-      : _firestore = FirebaseFirestore.instance,
-        _auth = FirebaseAuth.instance,
-        _secureStorage = const FlutterSecureStorage();
 
   // Initialize encryption keys
   Future<void> initialize() async {

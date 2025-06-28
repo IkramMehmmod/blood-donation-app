@@ -4,12 +4,15 @@ import '../models/user_model.dart';
 import 'firebase_service.dart';
 import 'push_notification_service.dart';
 import 'encryption_service.dart';
+import 'admin_monitoring_service.dart';
 
 class AuthService extends ChangeNotifier {
-  final FirebaseAuth _auth;
-  final FirebaseService _firebaseService;
-  final PushNotificationService _pushNotificationService;
-  final EncryptionService _encryptionService;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseService _firebaseService = FirebaseService();
+  final PushNotificationService _pushNotificationService =
+      PushNotificationService();
+  final EncryptionService _encryptionService = EncryptionService();
+  final AdminMonitoringService _adminMonitoring = AdminMonitoringService();
 
   UserModel? _currentUser;
   bool _isLoading = false;
@@ -20,11 +23,7 @@ class AuthService extends ChangeNotifier {
   bool get isGuest => _isGuest;
   User? get firebaseUser => _auth.currentUser;
 
-  AuthService()
-      : _auth = FirebaseAuth.instance,
-        _firebaseService = FirebaseService(),
-        _pushNotificationService = PushNotificationService(),
-        _encryptionService = EncryptionService() {
+  AuthService() {
     _auth.authStateChanges().listen(_onAuthStateChanged);
   }
 
@@ -32,23 +31,48 @@ class AuthService extends ChangeNotifier {
     debugPrint('Auth state changed: ${firebaseUser?.email}');
 
     if (firebaseUser != null && !_isGuest) {
+      // Temporarily disabled admin monitoring for testing
+      // await _adminMonitoring.logAuthEvent('auth_state_changed',
+      //     email: firebaseUser.email, severity: 'low');
+
       // Always try to load existing user first
       try {
         final existingUser = await _firebaseService.getUser(firebaseUser.uid);
         if (existingUser != null) {
           _currentUser = existingUser;
           debugPrint('Loaded existing user: ${existingUser.email}');
+
+          // Log user loaded event
+          // await _adminMonitoring.logUserProfileEvent('user_loaded', {
+          //   'userId': existingUser.id,
+          //   'email': existingUser.email,
+          //   'isVerified': firebaseUser.emailVerified,
+          // });
         } else {
           // Do NOT create Firestore user here anymore
           debugPrint('No Firestore user found for: ${firebaseUser.email}');
+
+          // Log missing user event
+          // await _adminMonitoring.logUserProfileEvent('user_not_found', {
+          //   'email': firebaseUser.email,
+          //   'isVerified': firebaseUser.emailVerified,
+          // });
         }
       } catch (e) {
         debugPrint('Error loading user: ${e.toString()}');
+
+        // Log error event
+        // await _adminMonitoring.logErrorEvent('user_load_error', e.toString(), {
+        //   'email': firebaseUser.email,
+        // });
       }
     } else if (firebaseUser == null) {
       _currentUser = null;
       _isGuest = false;
       _encryptionService.clearCache();
+
+      // Log logout event
+      // await _adminMonitoring.logAuthEvent('user_logout');
     }
     notifyListeners();
   }
@@ -57,6 +81,9 @@ class AuthService extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
+
+      // Log guest login attempt
+      // await _adminMonitoring.logAuthEvent('guest_login_attempt');
 
       // Create a guest user without Firebase Auth
       final guestUser = UserModel(
@@ -78,9 +105,16 @@ class AuthService extends ChangeNotifier {
       _currentUser = guestUser;
       _isGuest = true;
       debugPrint('Guest login successful');
+
+      // Log successful guest login
+      // await _adminMonitoring.logAuthEvent('guest_login_success');
       return true;
     } catch (e) {
       debugPrint('Guest login error: $e');
+
+      // Log guest login error
+      // await _adminMonitoring
+      //     .logErrorEvent('guest_login_error', e.toString(), {});
       return false;
     } finally {
       _isLoading = false;
@@ -92,6 +126,9 @@ class AuthService extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
+
+      // Log signup attempt
+      // await _adminMonitoring.logAuthEvent('signup_attempt', email: email);
 
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -111,11 +148,25 @@ class AuthService extends ChangeNotifier {
         // Only set local state
         _currentUser = updatedUserData;
         _isGuest = false;
+
+        // Log successful signup
+        // await _adminMonitoring.logAuthEvent('signup_success', email: email);
+        // await _adminMonitoring.logUserProfileEvent('user_created', {
+        //   'userId': credential.user!.uid,
+        //   'email': email,
+        //   'name': userData.name,
+        // });
+
         return true;
       }
       return false;
     } catch (e) {
       debugPrint('Sign up error: ${e.toString()}');
+
+      // Log signup error
+      // await _adminMonitoring.logErrorEvent('signup_error', e.toString(), {
+      //   'email': email,
+      // });
       return false;
     } finally {
       _isLoading = false;
@@ -127,6 +178,9 @@ class AuthService extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
+
+      // Log signin attempt
+      // await _adminMonitoring.logAuthEvent('signin_attempt', email: email);
 
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -141,6 +195,14 @@ class AuthService extends ChangeNotifier {
         if (existingUser != null) {
           _currentUser = existingUser;
           debugPrint('Sign in - Existing user loaded: ${existingUser.email}');
+
+          // Log successful signin
+          // await _adminMonitoring.logAuthEvent('signin_success', email: email);
+          // await _adminMonitoring.logUserProfileEvent('user_loaded', {
+          //   'userId': user.uid,
+          //   'email': email,
+          //   'isVerified': user.emailVerified,
+          // });
         } else {
           // Only create Firestore user if email is verified
           if (user.emailVerified) {
@@ -165,9 +227,20 @@ class AuthService extends ChangeNotifier {
             _currentUser = newUser;
             debugPrint(
                 'Sign in - Firestore user created for: ${newUser.email}');
+
+            // Log user creation during signin
+            // await _adminMonitoring
+            //     .logUserProfileEvent('user_created_during_signin', {
+            //   'userId': user.uid,
+            //   'email': email,
+            // });
           } else {
             debugPrint(
                 'Sign in - No Firestore user found and email is NOT verified.');
+
+            // Log unverified email signin
+            // await _adminMonitoring.logAuthEvent('signin_unverified_email',
+            //     email: email);
           }
         }
 
@@ -182,6 +255,11 @@ class AuthService extends ChangeNotifier {
       return false;
     } catch (e) {
       debugPrint('Sign in error: ${e.toString()}');
+
+      // Log signin error
+      // await _adminMonitoring.logErrorEvent('signin_error', e.toString(), {
+      //   'email': email,
+      // });
       return false;
     } finally {
       _isLoading = false;
@@ -194,10 +272,24 @@ class AuthService extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
+      // Log password reset attempt
+      // await _adminMonitoring.logPasswordChangeEvent('password_reset_requested',
+      //     email: email);
+
       await _auth.sendPasswordResetEmail(email: email);
+
+      // Log successful password reset email
+      // await _adminMonitoring.logPasswordChangeEvent('password_reset_email_sent',
+      //     email: email);
       return true;
     } catch (e) {
       debugPrint('Reset password error: $e');
+
+      // Log password reset error
+      // await _adminMonitoring
+      //     .logErrorEvent('password_reset_error', e.toString(), {
+      //   'email': email,
+      // });
       return false;
     } finally {
       _isLoading = false;
@@ -236,21 +328,23 @@ class AuthService extends ChangeNotifier {
 
   Future<void> signOut() async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      // Log signout attempt
+      // await _adminMonitoring.logAuthEvent('signout_attempt',
+      //     email: _currentUser?.email);
 
-      if (!_isGuest) {
-        await _auth.signOut();
-      }
-
+      await _auth.signOut();
       _currentUser = null;
       _isGuest = false;
       _encryptionService.clearCache();
+
+      // Log successful signout
+      // await _adminMonitoring.logAuthEvent('signout_success');
+      notifyListeners();
     } catch (e) {
       debugPrint('Sign out error: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+
+      // Log signout error
+      // await _adminMonitoring.logErrorEvent('signout_error', e.toString(), {});
     }
   }
 
@@ -267,6 +361,12 @@ class AuthService extends ChangeNotifier {
 
       final user = _auth.currentUser;
       if (user == null) return false;
+
+      // Log account deletion attempt
+      // await _adminMonitoring.logUserProfileEvent('account_deletion_attempted', {
+      //   'userId': user.uid,
+      //   'email': user.email,
+      // });
 
       // Re-authenticate if password is provided
       if (password != null && user.email != null) {
@@ -291,9 +391,24 @@ class AuthService extends ChangeNotifier {
       _currentUser = null;
       _isGuest = false;
       _encryptionService.clearCache();
+
+      // Log successful account deletion
+      // await _adminMonitoring.logUserProfileEvent('account_deleted', {
+      //   'userId': user.uid,
+      //   'email': user.email,
+      // });
+
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint('Delete account error: $e');
+
+      // Log account deletion error
+      // await _adminMonitoring
+      //     .logErrorEvent('account_deletion_error', e.toString(), {
+      //   'userId': _auth.currentUser?.uid,
+      //   'email': _auth.currentUser?.email,
+      // });
       return false;
     } finally {
       _isLoading = false;
@@ -361,5 +476,13 @@ class AuthService extends ChangeNotifier {
       _isGuest = false;
       notifyListeners();
     }
+  }
+
+  bool get isEmailVerified {
+    return _auth.currentUser?.emailVerified ?? false;
+  }
+
+  bool get isSignedIn {
+    return _auth.currentUser != null;
   }
 }

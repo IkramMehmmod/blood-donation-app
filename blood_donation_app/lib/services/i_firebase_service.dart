@@ -62,3 +62,4 @@ abstract class IFirebaseService {
     String? appVersion,
   });
 }
+ 

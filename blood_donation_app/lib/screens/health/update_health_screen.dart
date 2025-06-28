@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
-import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 
 class UpdateHealthScreen extends StatefulWidget {
-  final IFirebaseService? firebaseService;
-  const UpdateHealthScreen({super.key, this.firebaseService});
+  const UpdateHealthScreen({super.key});
 
   @override
   State<UpdateHealthScreen> createState() => _UpdateHealthScreenState();
@@ -25,12 +23,11 @@ class _UpdateHealthScreenState extends State<UpdateHealthScreen> {
   DateTime _lastCheckup = DateTime.now();
   bool _isLoading = true;
 
-  late final IFirebaseService _firebaseService;
+  final FirebaseService _firebaseService = FirebaseService();
 
   @override
   void initState() {
     super.initState();
-    _firebaseService = widget.firebaseService ?? FirebaseService();
     _loadHealthData();
   }
 

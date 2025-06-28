@@ -265,10 +265,9 @@ class _DonationScreenState extends State<DonationScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 24),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.blue.withAlpha((255 * 0.1).round()),
+              color: Colors.blue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: Colors.blue.withAlpha((255 * 0.3).round())),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
             ),
             child: Column(
               children: [

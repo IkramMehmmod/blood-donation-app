@@ -27,11 +27,30 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
+        
+        // Production configuration
+        manifestPlaceholders["appName"] = "Blood Donation"
+        manifestPlaceholders["appNameShort"] = "BloodBridge"
     }
 
     buildTypes {
         release {
+            // TODO: Configure production signing
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            
+            // Production optimizations
+            isDebuggable = false
+            isJniDebuggable = false
+            isRenderscriptDebuggable = false
+            isPseudoLocalesEnabled = false
+            isZipAlignEnabled = true
+        }
+        
+        debug {
+            versionNameSuffix = "-debug"
+            isDebuggable = true
         }
     }
 }

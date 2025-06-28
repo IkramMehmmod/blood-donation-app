@@ -5,29 +5,23 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
-import '../../services/i_firebase_service.dart';
 import '../../services/firebase_service.dart';
+import '../../widgets/custom_button.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/not_signed_in_message.dart';
-import '../../widgets/custom_button.dart';
-import 'update_health_screen.dart';
 
 class HealthScreen extends StatefulWidget {
-  final IFirebaseService? firebaseService;
-
-  const HealthScreen({Key? key, this.firebaseService}) : super(key: key);
+  const HealthScreen({super.key});
 
   @override
   State<HealthScreen> createState() => _HealthScreenState();
 }
 
 class _HealthScreenState extends State<HealthScreen> {
-  late IFirebaseService _firebaseService;
+  final FirebaseService _firebaseService = FirebaseService();
+  bool _isLoading = false;
   Map<String, dynamic>? _healthData;
   List<Map<String, dynamic>> _donationHistory = [];
-  bool _isLoading = true;
-  bool _isEligible = true;
-  DateTime? _nextDonationDate;
 
   final List<Map<String, dynamic>> _healthTips = [
     {
@@ -63,7 +57,6 @@ class _HealthScreenState extends State<HealthScreen> {
   @override
   void initState() {
     super.initState();
-    _firebaseService = widget.firebaseService ?? FirebaseService();
     _loadHealthData();
   }
 
@@ -110,17 +103,6 @@ class _HealthScreenState extends State<HealthScreen> {
 
       // Get donation history for chart
       final donations = await _firebaseService.getUserDonations(user.id!);
-
-      // Calculate donation eligibility using the improved canUserDonate function
-      final canDonate = _firebaseService.canUserDonate(user.lastDonation);
-      final daysUntilCanDonate =
-          _firebaseService.getDaysUntilCanDonate(user.lastDonation);
-
-      setState(() {
-        _isEligible = canDonate;
-        _nextDonationDate =
-            canDonate ? null : user.lastDonation?.add(const Duration(days: 56));
-      });
 
       // Process donation history for chart
       final Map<int, int> donationsByMonth = {};
@@ -381,8 +363,6 @@ class _HealthScreenState extends State<HealthScreen> {
   Widget _buildDonationEligibility(UserModel? user) {
     // Get current eligibility status
     final canDonate = _firebaseService.canUserDonate(user?.lastDonation);
-    final daysUntilCanDonate =
-        _firebaseService.getDaysUntilCanDonate(user?.lastDonation);
 
     return Card(
       elevation: 2,
@@ -404,7 +384,6 @@ class _HealthScreenState extends State<HealthScreen> {
             const SizedBox(height: 16),
             EligibilityStatus(
               isEligible: canDonate,
-              daysUntilEligible: !canDonate ? daysUntilCanDonate : null,
               eligibleText: 'You are eligible to donate',
               notEligibleText: 'You are not eligible to donate yet',
             ),
@@ -434,17 +413,6 @@ class _HealthScreenState extends State<HealthScreen> {
                         ),
                       ],
                     ),
-                    if (!canDonate && daysUntilCanDonate > 0) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Next eligible donation: ${DateFormat('MMM d, yyyy').format(user.lastDonation!.add(const Duration(days: 56)))}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.orange[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
