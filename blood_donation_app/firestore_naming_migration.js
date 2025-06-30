@@ -30,7 +30,13 @@ const fieldMappings = {
     created_at: 'createdAt',
     updated_at: 'updatedAt',
     is_donor: 'isDonor',
-    fcm_token: 'fcmToken'
+    fcm_token: 'fcmToken',
+    phone: 'phone',
+    state: 'state',
+    address: 'address',
+    city: 'city',
+    country: 'country',
+    // Add any other user fields here
   },
   requests: {
     blood_group: 'bloodGroup',
@@ -42,13 +48,20 @@ const fieldMappings = {
     additional_info: 'additionalInfo',
     created_at: 'createdAt',
     updated_at: 'updatedAt',
-    units_needed: 'units'
+    units_needed: 'units',
+    hospital: 'hospital',
+    location: 'location',
+    responders: 'responders',
+    status: 'status',
+    urgency: 'urgency',
+    // Add any other request fields here
   },
   notifications: {
     reference_id: 'referenceId',
     is_read: 'isRead',
     created_at: 'createdAt',
-    user_id: 'userId'
+    user_id: 'userId',
+    // Add any other notification fields here
   },
   donations: {
     blood_group: 'bloodGroup',
@@ -56,7 +69,13 @@ const fieldMappings = {
     request_id: 'requestId',
     patient_name: 'patientName',
     created_at: 'createdAt',
-    updated_at: 'updatedAt'
+    updated_at: 'updatedAt',
+    hospital: 'hospital',
+    location: 'location',
+    units: 'units',
+    status: 'status',
+    date: 'date',
+    // Add any other donation fields here
   },
   healthData: {
     user_id: 'userId',
@@ -64,28 +83,43 @@ const fieldMappings = {
     last_checkup: 'lastCheckup',
     medical_conditions: 'medicalConditions',
     created_at: 'createdAt',
-    updated_at: 'updatedAt'
+    updated_at: 'updatedAt',
+    weight: 'weight',
+    height: 'height',
+    hemoglobin: 'hemoglobin',
+    // Add any other healthData fields here
   },
   userSettings: {
     user_id: 'userId',
     dark_mode: 'darkMode',
     created_at: 'createdAt',
-    updated_at: 'updatedAt'
+    updated_at: 'updatedAt',
+    notifications: 'notifications',
+    location: 'location',
+    // Add any other userSettings fields here
   },
   deviceTokens: {
     user_id: 'userId',
-    last_updated: 'lastUpdated'
+    last_updated: 'lastUpdated',
+    token: 'token',
+    // Add any other deviceTokens fields here
   },
   bugReports: {
     user_id: 'userId',
     device_info: 'deviceInfo',
     app_version: 'appVersion',
-    created_at: 'createdAt'
+    created_at: 'createdAt',
+    status: 'status',
+    title: 'title',
+    description: 'description',
+    // Add any other bugReports fields here
   },
   encryptionKeys: {
     created_at: 'createdAt',
     rotated_at: 'rotatedAt',
-    previous_key: 'previousKey'
+    previous_key: 'previousKey',
+    key: 'key',
+    // Add any other encryptionKeys fields here
   }
 };
 
@@ -236,6 +270,33 @@ async function copyCollection(oldName, newName) {
   console.log(`Copied ${copied} documents from ${oldName} to ${newName}`);
 }
 
+async function removePlainFields(collectionName) {
+  console.log(`Removing *_plain fields from collection: ${collectionName}`);
+  const snapshot = await db.collection(collectionName).get();
+  let updatedCount = 0;
+  for (const doc of snapshot.docs) {
+    const data = doc.data();
+    const deletes = {};
+    let updateNeeded = false;
+    for (const key of Object.keys(data)) {
+      if (key.endsWith('_plain')) {
+        deletes[key] = admin.firestore.FieldValue.delete();
+        updateNeeded = true;
+      }
+    }
+    if (updateNeeded) {
+      try {
+        await db.collection(collectionName).doc(doc.id).update(deletes);
+        updatedCount++;
+        console.log(`Removed *_plain fields from ${collectionName}/${doc.id}`);
+      } catch (error) {
+        console.error(`Error updating ${collectionName}/${doc.id}:`, error);
+      }
+    }
+  }
+  console.log(`Finished removing *_plain fields from ${updatedCount} documents in ${collectionName}`);
+}
+
 async function runMigration() {
   console.log('Starting Firestore field naming migration...');
   console.log('This will convert all snake_case fields to camelCase...');
@@ -254,6 +315,11 @@ async function runMigration() {
     } else {
       console.log(`No field mappings found for collection: ${collection}`);
     }
+  }
+  
+  // Remove *_plain fields from all collections
+  for (const collection of collectionsToUpdate) {
+    await removePlainFields(collection);
   }
   
   // Run specific bug reports migration

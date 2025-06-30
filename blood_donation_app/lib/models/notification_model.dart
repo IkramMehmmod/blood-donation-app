@@ -24,17 +24,15 @@ class NotificationModel {
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
       id: json['id'],
-      userId: json['user_id'] ?? json['userId'] ?? '',
+      userId: json['userId'] ?? '',
       title: json['title'] ?? '',
       body: json['body'] ?? json['message'] ?? '',
       type: json['type'] ?? 'general',
-      referenceId: json['reference_id'] ?? json['referenceId'],
-      isRead: json['is_read'] ?? json['isRead'] ?? false,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
-          : (json['createdAt'] != null
-              ? DateTime.parse(json['createdAt'])
-              : DateTime.now()),
+      referenceId: json['referenceId'],
+      isRead: json['isRead'] ?? false,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
       data: json['data'] as Map<String, dynamic>?,
     );
   }
@@ -42,13 +40,13 @@ class NotificationModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'user_id': userId,
+      'userId': userId,
       'title': title,
       'body': body,
       'type': type,
-      'reference_id': referenceId,
-      'is_read': isRead,
-      'created_at': createdAt.toIso8601String(),
+      'referenceId': referenceId,
+      'isRead': isRead,
+      'createdAt': createdAt.toIso8601String(),
       'data': data,
     };
   }

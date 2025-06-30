@@ -282,8 +282,7 @@ class PushNotificationService {
             .get();
         if (doc.exists) {
           final requestData = doc.data()!;
-          final requesterId =
-              requestData['requesterId'] ?? requestData['requester_id'];
+          final requesterId = requestData['requesterId'];
           if (_currentUser != null && requesterId == _currentUser!.id) {
             debugPrint('🔕 Ignoring notification for own request');
             return;
@@ -316,8 +315,7 @@ class PushNotificationService {
                 .get();
             if (doc.exists) {
               final requestData = doc.data()!;
-              final requesterId =
-                  requestData['requesterId'] ?? requestData['requester_id'];
+              final requesterId = requestData['requesterId'];
               if (_currentUser != null && requesterId == _currentUser!.id) {
                 debugPrint('🔕 Ignoring notification for own request');
                 return;

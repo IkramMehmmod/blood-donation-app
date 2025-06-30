@@ -76,7 +76,7 @@ class EncryptionService {
             .doc(userId)
             .set({
           'key': key,
-          'created_at': FieldValue.serverTimestamp(),
+          'createdAt': FieldValue.serverTimestamp(),
         });
         _userKeys[userId] = key;
       } else {

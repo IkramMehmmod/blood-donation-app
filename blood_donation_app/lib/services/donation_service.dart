@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/donation_model.dart';
+import '../services/auth_service.dart';
 
 class DonationService extends ChangeNotifier {
   static final DonationService _instance = DonationService._internal();
@@ -127,6 +128,7 @@ class DonationService extends ChangeNotifier {
     int units = 1,
   }) async {
     try {
+      final user = AuthService().currentUser;
       // Create donation record
       final donation = DonationModel(
         userId: userId,
@@ -138,6 +140,7 @@ class DonationService extends ChangeNotifier {
         requestId: requestId,
         patientName: patientName,
         hospital: hospital,
+        requesterName: user?.name ?? '',
       );
 
       // Add donation to Firestore

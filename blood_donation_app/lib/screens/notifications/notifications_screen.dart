@@ -78,17 +78,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           .get();
       if (doc.exists) {
         final data = doc.data()!;
-        final requesterId = data['requesterId'] ?? data['requester_id'] ?? '';
+        final requesterId = data['requesterId'] ?? '';
         final encryptionService = EncryptionService();
         final patientName = await encryptionService.decryptWithUserKey(
-            data['patientName'] ?? data['patient_name'] ?? '', requesterId);
-        final bloodGroup = data['bloodGroup'] ?? data['blood_group'] ?? '';
+            data['patientName'] ?? '', requesterId);
+        final bloodGroup = data['bloodGroup'] ?? '';
         final hospital = await encryptionService.decryptWithUserKey(
             data['hospital'] ?? '', requesterId);
         final location = await encryptionService.decryptWithUserKey(
             data['location'] ?? '', requesterId);
         final contactNumber = await encryptionService.decryptWithUserKey(
-            data['contactNumber'] ?? data['contact_number'] ?? '', requesterId);
+            data['contactNumber'] ?? '', requesterId);
         final decrypted = {
           'patientName': patientName,
           'bloodGroup': bloodGroup,
@@ -293,8 +293,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   '[NotificationFilter] Notification \\${notification['id']} references missing request $referenceId, hiding.');
               return false; // Strict: hide if request not found
             }
-            final requesterId =
-                request['requester_id'] ?? request['requesterId'];
+            final requesterId = request['requesterId'];
             final isOwn = requesterId == currentUserId;
             debugPrint(
                 '[NotificationFilter] Notification \\${notification['id']} for request $referenceId, requesterId: $requesterId, currentUser: $currentUserId, isOwn: $isOwn');

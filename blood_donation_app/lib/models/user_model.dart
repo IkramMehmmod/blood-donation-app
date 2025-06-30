@@ -53,9 +53,7 @@ class UserModel {
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    DateTime? lastDonation =
-        _parseDateTime(json['last_donation'] ?? json['lastDonation']);
-
+    DateTime? lastDonation = _parseDateTime(json['lastDonation']);
     return UserModel(
       id: json['id'],
       name: json['name'] ?? '',
@@ -65,13 +63,12 @@ class UserModel {
       city: json['city'] ?? '',
       state: json['state'] ?? '',
       country: json['country'] ?? '',
-      bloodGroup: json['blood_group'] ?? json['bloodGroup'] ?? '',
-      isDonor: json['is_donor'] ?? json['isDonor'] ?? false,
+      bloodGroup: json['bloodGroup'] ?? '',
+      isDonor: json['isDonor'] ?? false,
       lastDonation: lastDonation,
-      imageUrl: json['image_url'] ?? json['imageUrl'] ?? '',
-      createdAt: _parseDateTime(json['created_at'] ?? json['createdAt']) ??
-          DateTime.now(),
-      updatedAt: _parseDateTime(json['updated_at'] ?? json['updatedAt']),
+      imageUrl: json['imageUrl'] ?? '',
+      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
+      updatedAt: _parseDateTime(json['updatedAt']),
     );
   }
 

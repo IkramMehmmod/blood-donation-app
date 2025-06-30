@@ -45,8 +45,8 @@ class FirebaseService {
         userData['country'] =
             await encryptionService.encryptWithUserKey(user.country, user.id!);
       }
-      userData['created_at'] = FieldValue.serverTimestamp();
-      userData['updated_at'] = FieldValue.serverTimestamp();
+      userData['createdAt'] = FieldValue.serverTimestamp();
+      userData['updatedAt'] = FieldValue.serverTimestamp();
 
       await _firestore.collection('users').doc(user.id).set(userData);
       debugPrint('User created successfully in Firestore');
@@ -111,8 +111,8 @@ class FirebaseService {
         userData['country'] =
             await encryptionService.encryptWithUserKey(user.country, user.id!);
       }
-      userData['updated_at'] = FieldValue.serverTimestamp();
-      userData.remove('created_at');
+      userData['updatedAt'] = FieldValue.serverTimestamp();
+      userData.remove('createdAt');
 
       await _firestore.collection('users').doc(user.id).update(userData);
       debugPrint('User updated successfully in Firestore');
@@ -136,8 +136,8 @@ class FirebaseService {
         donationData['location'] = await encryptionService.encryptWithUserKey(
             donation.location, donation.userId);
       }
-      donationData['created_at'] = FieldValue.serverTimestamp();
-      donationData['updated_at'] = FieldValue.serverTimestamp();
+      donationData['createdAt'] = FieldValue.serverTimestamp();
+      donationData['updatedAt'] = FieldValue.serverTimestamp();
 
       await _firestore.collection('donations').add(donationData);
       debugPrint('Donation added successfully');
@@ -162,8 +162,8 @@ class FirebaseService {
         'requestId': request.id,
         'patientName': request.patientName,
         'hospital': request.hospital,
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       };
 
       await _firestore.collection('donations').add(donationData);
@@ -237,6 +237,7 @@ class FirebaseService {
             patientName: data['patientName'] ?? 'Unknown Patient',
             hospital:
                 data['hospital'] ?? data['location'] ?? 'Unknown Hospital',
+            requesterName: data['requesterName'] ?? '',
           );
 
           donations.add(donation);
@@ -284,36 +285,36 @@ class FirebaseService {
       // Ensure requesterId is set and correct for encryption
       final requesterId = request.requesterId.isNotEmpty
           ? request.requesterId
-          : (requestData['requester_id'] ?? requestData['requesterId'] ?? '');
+          : (requestData['requesterId'] ?? '');
       debugPrint('[addRequest] About to save:');
       debugPrint('  patientName: ${request.patientName}');
       debugPrint('  bloodGroup: ${request.bloodGroup}');
       debugPrint('  requesterId: $requesterId');
       final encryptionService = EncryptionService();
       if (requesterId.isNotEmpty) {
-        requestData['patient_name'] = await encryptionService
-            .encryptWithUserKey(request.patientName, requesterId);
-        requestData['requester_name'] = await encryptionService
+        requestData['patientName'] = await encryptionService.encryptWithUserKey(
+            request.patientName, requesterId);
+        requestData['requesterName'] = await encryptionService
             .encryptWithUserKey(request.requesterName, requesterId);
         requestData['hospital'] = await encryptionService.encryptWithUserKey(
             request.hospital, requesterId);
         requestData['location'] = await encryptionService.encryptWithUserKey(
             request.location, requesterId);
-        requestData['contact_number'] = await encryptionService
+        requestData['contactNumber'] = await encryptionService
             .encryptWithUserKey(request.contactNumber, requesterId);
-        requestData['additional_info'] = await encryptionService
+        requestData['additionalInfo'] = await encryptionService
             .encryptWithUserKey(request.additionalInfo, requesterId);
       }
       // Store plain text versions for notification/Cloud Function use only (only necessary fields)
-      requestData['patientName_plain'] = request.patientName;
-      requestData['bloodGroup_plain'] = request.bloodGroup;
-      requestData['hospital_plain'] = request.hospital;
-      requestData['location_plain'] = request.location;
-      requestData['contactNumber_plain'] = request.contactNumber;
-      debugPrint('  encrypted patient_name: ${requestData['patient_name']}');
-      debugPrint('  blood_group: ${requestData['blood_group']}');
-      requestData['created_at'] = FieldValue.serverTimestamp();
-      requestData['updated_at'] = FieldValue.serverTimestamp();
+      // requestData['patientName_plain'] = request.patientName;
+      // requestData['bloodGroup_plain'] = request.bloodGroup;
+      // requestData['hospital_plain'] = request.hospital;
+      // requestData['location_plain'] = request.location;
+      // requestData['contactNumber_plain'] = request.contactNumber;
+      debugPrint('  encrypted patientName: ${requestData['patientName']}');
+      debugPrint('  bloodGroup: ${requestData['bloodGroup']}');
+      requestData['createdAt'] = FieldValue.serverTimestamp();
+      requestData['updatedAt'] = FieldValue.serverTimestamp();
 
       await _firestore.collection('requests').add(requestData);
     } catch (e) {
@@ -331,8 +332,8 @@ class FirebaseService {
 
       final docs = querySnapshot.docs;
       docs.sort((a, b) {
-        final aTime = a.data()['created_at'] as Timestamp?;
-        final bTime = b.data()['created_at'] as Timestamp?;
+        final aTime = a.data()['createdAt'] as Timestamp?;
+        final bTime = b.data()['createdAt'] as Timestamp?;
         if (aTime == null || bTime == null) return 0;
         return bTime.compareTo(aTime);
       });
@@ -369,13 +370,13 @@ class FirebaseService {
     try {
       final querySnapshot = await _firestore
           .collection('requests')
-          .where('requester_id', isEqualTo: userId)
+          .where('requesterId', isEqualTo: userId)
           .get();
 
       final docs = querySnapshot.docs;
       docs.sort((a, b) {
-        final aTime = a.data()['created_at'] as Timestamp?;
-        final bTime = b.data()['created_at'] as Timestamp?;
+        final aTime = a.data()['createdAt'] as Timestamp?;
+        final bTime = b.data()['createdAt'] as Timestamp?;
         if (aTime == null || bTime == null) return 0;
         return bTime.compareTo(aTime);
       });
@@ -407,8 +408,8 @@ class FirebaseService {
 
       final docs = querySnapshot.docs;
       docs.sort((a, b) {
-        final aTime = a.data()['created_at'] as Timestamp?;
-        final bTime = b.data()['created_at'] as Timestamp?;
+        final aTime = a.data()['createdAt'] as Timestamp?;
+        final bTime = b.data()['createdAt'] as Timestamp?;
         if (aTime == null || bTime == null) return 0;
         return bTime.compareTo(aTime);
       });
@@ -482,58 +483,43 @@ class FirebaseService {
   Future<RequestModel> _processRequestData(Map<String, dynamic> data) async {
     try {
       debugPrint('Processing request data: \\${data.keys.toList()}');
-      data['requesterId'] = data['requesterId'] ?? data['requester_id'] ?? '';
+      data['requesterId'] = data['requesterId'] ?? '';
       final requesterId = data['requesterId'] ?? '';
       debugPrint(
           '[processRequestData] Decrypting with requesterId: $requesterId');
-      data['requesterName'] =
-          data['requesterName'] ?? data['requester_name'] ?? '';
-      data['patientName'] = data['patientName'] ?? data['patient_name'] ?? '';
-      data['bloodGroup'] = data['bloodGroup'] ?? data['blood_group'] ?? '';
-      data['contactNumber'] =
-          data['contactNumber'] ?? data['contact_number'] ?? '';
+      data['requesterName'] = data['requesterName'] ?? '';
+      data['patientName'] = data['patientName'] ?? '';
+      data['bloodGroup'] = data['bloodGroup'] ?? '';
+      data['contactNumber'] = data['contactNumber'] ?? '';
       data['hospital'] = data['hospital'] ?? '';
       data['location'] = data['location'] ?? '';
       data['urgency'] = data['urgency'] ?? 'normal';
       data['status'] = data['status'] ?? 'open';
-      data['additionalInfo'] =
-          data['additionalInfo'] ?? data['additional_info'] ?? '';
+      data['additionalInfo'] = data['additionalInfo'] ?? '';
       data['responders'] = data['responders'] ?? [];
-      data['units'] = data['units'] ?? data['units_needed'] ?? 1;
+      data['units'] = data['units'] ?? 1;
 
       // Decrypt sensitive fields
       final encryptionService = EncryptionService();
       if (requesterId.isNotEmpty) {
         final decryptedPatientName = await encryptionService.decryptWithUserKey(
-            data['patientName'] ?? data['patient_name'] ?? '', requesterId);
+            data['patientName'] ?? '', requesterId);
         data['patientName'] = decryptedPatientName;
-        data['patient_name'] = decryptedPatientName;
-        final decryptedRequesterName =
-            await encryptionService.decryptWithUserKey(
-                data['requesterName'] ?? data['requester_name'] ?? '',
-                requesterId);
+        final decryptedRequesterName = await encryptionService
+            .decryptWithUserKey(data['requesterName'] ?? '', requesterId);
         data['requesterName'] = decryptedRequesterName;
-        data['requester_name'] = decryptedRequesterName;
         final decryptedHospital = await encryptionService.decryptWithUserKey(
             data['hospital'] ?? '', requesterId);
-        data['hospital'] = decryptedHospital;
         data['hospital'] = decryptedHospital;
         final decryptedLocation = await encryptionService.decryptWithUserKey(
             data['location'] ?? '', requesterId);
         data['location'] = decryptedLocation;
-        data['location'] = decryptedLocation;
-        final decryptedContactNumber =
-            await encryptionService.decryptWithUserKey(
-                data['contactNumber'] ?? data['contact_number'] ?? '',
-                requesterId);
+        final decryptedContactNumber = await encryptionService
+            .decryptWithUserKey(data['contactNumber'] ?? '', requesterId);
         data['contactNumber'] = decryptedContactNumber;
-        data['contact_number'] = decryptedContactNumber;
-        final decryptedAdditionalInfo =
-            await encryptionService.decryptWithUserKey(
-                data['additionalInfo'] ?? data['additional_info'] ?? '',
-                requesterId);
+        final decryptedAdditionalInfo = await encryptionService
+            .decryptWithUserKey(data['additionalInfo'] ?? '', requesterId);
         data['additionalInfo'] = decryptedAdditionalInfo;
-        data['additional_info'] = decryptedAdditionalInfo;
       }
 
       debugPrint('Processed requesterId: ${data['requesterId']}');
@@ -551,7 +537,7 @@ class FirebaseService {
     try {
       await _firestore.collection('requests').doc(requestId).update({
         'status': status,
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       debugPrint('Error updating request status: $e');
@@ -564,7 +550,7 @@ class FirebaseService {
     try {
       await _firestore.collection('requests').doc(requestId).update({
         'responders': FieldValue.arrayUnion([responderId]),
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       debugPrint('Error adding responder to request: $e');
@@ -579,7 +565,7 @@ class FirebaseService {
       await _firestore.collection('requests').doc(requestId).update({
         'responders': FieldValue.arrayUnion([userId]),
         'status': 'accepted',
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       // Get the request details and create donation record
@@ -608,7 +594,7 @@ class FirebaseService {
       final doc = await _firestore.collection('requests').doc(requestId).get();
       if (doc.exists) {
         final data = doc.data();
-        return data?['requester_id'] ?? data?['requesterId'];
+        return data?['requesterId'];
       }
       return null;
     } catch (e) {
@@ -621,7 +607,7 @@ class FirebaseService {
     try {
       await _firestore.collection('requests').doc(requestId).update({
         'status': 'closed',
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       debugPrint('Error closing request: $e');
@@ -644,7 +630,7 @@ class FirebaseService {
           .get();
 
       final expiredDocs = querySnapshot.docs.where((doc) {
-        final createdAt = doc.data()['created_at'] as Timestamp?;
+        final createdAt = doc.data()['createdAt'] as Timestamp?;
         if (createdAt == null) return false;
         return createdAt.toDate().isBefore(expiredDate);
       }).toList();
@@ -652,7 +638,7 @@ class FirebaseService {
       for (var doc in expiredDocs) {
         await doc.reference.update({
           'status': 'expired',
-          'updated_at': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
         });
       }
     } catch (e) {
@@ -726,7 +712,7 @@ class FirebaseService {
         if (requestDoc.exists && requestDoc.data() != null) {
           final requestData = requestDoc.data()!;
           final requesterId =
-              requestData['requesterId'] ?? requestData['requester_id'];
+              requestData['requesterId'] ?? requestData['requesterId'];
           if (userId == requesterId) {
             debugPrint(
                 '[NOTIF] Skipping notification: userId == requesterId ($userId)');
@@ -747,14 +733,14 @@ class FirebaseService {
           final requestData = requestDoc.data()!;
           debugRequestData = requestData;
           final requesterId =
-              requestData['requesterId'] ?? requestData['requester_id'];
+              requestData['requesterId'] ?? requestData['requesterId'];
           final encryptionService = EncryptionService();
           String decryptedPatientName = '';
           if (requesterId != null &&
               (requestData['patientName'] != null ||
-                  requestData['patient_name'] != null)) {
+                  requestData['patientName'] != null)) {
             final rawPatientName =
-                requestData['patientName'] ?? requestData['patient_name'] ?? '';
+                requestData['patientName'] ?? requestData['patientName'] ?? '';
             debugPrint('[NOTIF] Raw patientName: $rawPatientName');
             decryptedPatientName = await encryptionService.decryptWithUserKey(
               rawPatientName,
@@ -764,7 +750,7 @@ class FirebaseService {
             debugPatientName = decryptedPatientName;
           }
           final bloodGroup = requestData['bloodGroup'] ??
-              requestData['blood_group'] ??
+              requestData['bloodGroup'] ??
               'Unknown';
           debugPrint('[NOTIF] Blood group: $bloodGroup');
           debugBloodGroup = bloodGroup;
@@ -843,9 +829,9 @@ class FirebaseService {
   // Device Token Management
   Future<void> saveDeviceToken(String userId, String token) async {
     try {
-      await _firestore.collection('device_tokens').doc(userId).set({
+      await _firestore.collection('deviceTokens').doc(userId).set({
         'token': token,
-        'updated_at': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Error saving device token: $e');
@@ -855,8 +841,7 @@ class FirebaseService {
 
   Future<String?> getDeviceToken(String userId) async {
     try {
-      final doc =
-          await _firestore.collection('device_tokens').doc(userId).get();
+      final doc = await _firestore.collection('deviceTokens').doc(userId).get();
       if (doc.exists) {
         return doc.data()?['token'];
       }
@@ -869,7 +854,7 @@ class FirebaseService {
 
   Future<void> removeDeviceToken(String userId) async {
     try {
-      await _firestore.collection('device_tokens').doc(userId).delete();
+      await _firestore.collection('deviceTokens').doc(userId).delete();
     } catch (e) {
       debugPrint('Error removing device token: $e');
       rethrow;
@@ -960,7 +945,7 @@ class FirebaseService {
   Future<void> updateHealthData(
       String userId, Map<String, dynamic> healthData) async {
     try {
-      healthData['updated_at'] = FieldValue.serverTimestamp();
+      healthData['updatedAt'] = FieldValue.serverTimestamp();
       await _firestore.collection('healthData').doc(userId).set(
             healthData,
             SetOptions(merge: true),
@@ -974,8 +959,7 @@ class FirebaseService {
   // User Settings Management
   Future<Map<String, dynamic>?> getUserSettings(String userId) async {
     try {
-      final doc =
-          await _firestore.collection('user_settings').doc(userId).get();
+      final doc = await _firestore.collection('userSettings').doc(userId).get();
       if (doc.exists) {
         return doc.data();
       }
@@ -989,8 +973,8 @@ class FirebaseService {
   Future<void> updateUserSettings(
       String userId, Map<String, dynamic> settings) async {
     try {
-      settings['updated_at'] = FieldValue.serverTimestamp();
-      await _firestore.collection('user_settings').doc(userId).set(
+      settings['updatedAt'] = FieldValue.serverTimestamp();
+      await _firestore.collection('userSettings').doc(userId).set(
             settings,
             SetOptions(merge: true),
           );
@@ -1007,9 +991,9 @@ class FirebaseService {
       await _firestore.collection('users').doc(userId).delete();
 
       // Delete related data
-      await _firestore.collection('user_settings').doc(userId).delete();
+      await _firestore.collection('userSettings').doc(userId).delete();
       await _firestore.collection('healthData').doc(userId).delete();
-      await _firestore.collection('device_tokens').doc(userId).delete();
+      await _firestore.collection('deviceTokens').doc(userId).delete();
 
       // Delete user's donations
       final donationsQuery = await _firestore
@@ -1059,13 +1043,13 @@ class FirebaseService {
       batch.delete(_firestore.collection('users').doc(userId));
 
       // 2. Delete user settings
-      batch.delete(_firestore.collection('user_settings').doc(userId));
+      batch.delete(_firestore.collection('userSettings').doc(userId));
 
       // 3. Delete health data
       batch.delete(_firestore.collection('healthData').doc(userId));
 
       // 4. Delete device tokens
-      batch.delete(_firestore.collection('device_tokens').doc(userId));
+      batch.delete(_firestore.collection('deviceTokens').doc(userId));
 
       // Commit the batch for simple documents
       await batch.commit();
@@ -1084,7 +1068,7 @@ class FirebaseService {
       // 6. Delete user's requests (query-based deletion)
       final requestsQuery = await _firestore
           .collection('requests')
-          .where('requester_id', isEqualTo: userId)
+          .where('requesterId', isEqualTo: userId)
           .get();
 
       for (var doc in requestsQuery.docs) {
@@ -1101,7 +1085,7 @@ class FirebaseService {
       for (var doc in respondedRequestsQuery.docs) {
         await doc.reference.update({
           'responders': FieldValue.arrayRemove([userId]),
-          'updated_at': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
         });
       }
       debugPrint(
@@ -1156,10 +1140,10 @@ class FirebaseService {
         'userId': userId,
         'title': title,
         'description': description,
-        'device_info': deviceInfo,
-        'app_version': appVersion,
+        'deviceInfo': deviceInfo,
+        'appVersion': appVersion,
         'status': 'open',
-        'created_at': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       debugPrint('Error submitting bug report: $e');

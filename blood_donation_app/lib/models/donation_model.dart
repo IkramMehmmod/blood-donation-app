@@ -9,6 +9,7 @@ class DonationModel {
   final String? requestId; // Link to the blood request
   final String patientName; // Patient who received the blood
   final String hospital; // Hospital where donation was made
+  final String requesterName;
 
   DonationModel({
     this.id,
@@ -21,22 +22,24 @@ class DonationModel {
     this.requestId,
     required this.patientName,
     required this.hospital,
+    required this.requesterName,
   });
 
   factory DonationModel.fromJson(Map<String, dynamic> json) {
     return DonationModel(
       id: json['id'],
-      userId: json['userId'] ?? json['user_id'] ?? '',
-      bloodGroup: json['bloodGroup'] ?? json['blood_group'] ?? '',
+      userId: json['userId'] ?? '',
+      bloodGroup: json['bloodGroup'] ?? '',
       units: json['units'] ?? 1,
       date: json['date'] is DateTime
           ? json['date']
           : DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime.now(),
       location: json['location'] ?? '',
       status: json['status'] ?? 'Completed',
-      requestId: json['requestId'] ?? json['request_id'],
-      patientName: json['patientName'] ?? json['patient_name'] ?? '',
+      requestId: json['requestId'],
+      patientName: json['patientName'] ?? '',
       hospital: json['hospital'] ?? '',
+      requesterName: json['requesterName'] ?? '',
     );
   }
 
@@ -52,6 +55,7 @@ class DonationModel {
       'requestId': requestId,
       'patientName': patientName,
       'hospital': hospital,
+      'requesterName': requesterName,
     };
   }
 
@@ -66,6 +70,7 @@ class DonationModel {
     String? requestId,
     String? patientName,
     String? hospital,
+    String? requesterName,
   }) {
     return DonationModel(
       id: id ?? this.id,
@@ -78,6 +83,7 @@ class DonationModel {
       requestId: requestId ?? this.requestId,
       patientName: patientName ?? this.patientName,
       hospital: hospital ?? this.hospital,
+      requesterName: requesterName ?? this.requesterName,
     );
   }
 }

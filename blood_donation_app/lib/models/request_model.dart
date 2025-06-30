@@ -38,20 +38,19 @@ class RequestModel {
   factory RequestModel.fromJson(Map<String, dynamic> json) {
     return RequestModel(
       id: json['id'],
-      requesterId: json['requester_id'] ?? json['requesterId'] ?? '',
-      requesterName: json['requester_name'] ?? json['requesterName'] ?? '',
-      patientName: json['patient_name'] ?? json['patientName'] ?? '',
-      bloodGroup: json['blood_group'] ?? json['bloodGroup'] ?? '',
-      units: json['units_needed'] ?? json['units'] ?? 0,
+      requesterId: json['requesterId'] ?? '',
+      requesterName: json['requesterName'] ?? '',
+      patientName: json['patientName'] ?? '',
+      bloodGroup: json['bloodGroup'] ?? '',
+      units: json['units'] ?? 0,
       hospital: json['hospital'] ?? '',
       location: json['location'] ?? '',
-      contactNumber: json['contact_number'] ?? json['contactNumber'] ?? '',
+      contactNumber: json['contactNumber'] ?? '',
       urgency: json['urgency'] ?? 'normal',
       status: json['status'] ?? 'open',
-      createdAt: _parseDateTime(json['created_at'] ?? json['createdAt']),
-      requiredDate:
-          _parseDateTime(json['required_date'] ?? json['requiredDate']),
-      additionalInfo: json['additional_info'] ?? json['additionalInfo'] ?? '',
+      createdAt: _parseDateTime(json['createdAt']),
+      requiredDate: _parseDateTime(json['requiredDate']),
+      additionalInfo: json['additionalInfo'] ?? '',
       responders: List<String>.from(json['responders'] ?? []),
     );
   }
@@ -78,19 +77,19 @@ class RequestModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'requester_id': requesterId,
-      'requester_name': requesterName,
-      'patient_name': patientName,
-      'blood_group': bloodGroup,
-      'units_needed': units,
+      'requesterId': requesterId,
+      'requesterName': requesterName,
+      'patientName': patientName,
+      'bloodGroup': bloodGroup,
+      'units': units,
       'hospital': hospital,
       'location': location,
-      'contact_number': contactNumber,
+      'contactNumber': contactNumber,
       'urgency': urgency,
       'status': status,
-      'created_at': createdAt.toIso8601String(),
-      'required_date': requiredDate.toIso8601String(),
-      'additional_info': additionalInfo,
+      'createdAt': createdAt.toIso8601String(),
+      'requiredDate': requiredDate.toIso8601String(),
+      'additionalInfo': additionalInfo,
       'responders': responders,
     };
   }

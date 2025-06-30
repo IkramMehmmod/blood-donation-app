@@ -34,7 +34,7 @@ class NotificationBadge extends StatelessWidget {
           final request = requestCache[referenceId];
           if (request == null)
             return false; // Strict: hide if request not found
-          final requesterId = request['requester_id'] ?? request['requesterId'];
+          final requesterId = request['requesterId'];
           return requesterId != currentUserId;
         }).length;
 
