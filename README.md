@@ -170,9 +170,20 @@ blood-donation-app/
 
 ## 📸 **Screenshots & Demo**
 
-> **Note**: Screenshots will be displayed here to showcase the app's professional interface and user experience.
+### Home Screen
+![Home Screen](assets/screenshots/home.png)
 
-*For a live demo or detailed walkthrough, please contact our team.*
+### Authentication
+![Login Screen](assets/screenshots/login.png.jpg)
+![Sign Up Screen](assets/screenshots/sign_up.png.jpg)
+
+### Donation Features
+![Donors Screen](assets/screenshots/doners_screens.png)
+![Donation Request](assets/screenshots/donation_request%20.png)
+
+### User Interface
+![Profile Screen](assets/screenshots/profile.png)
+![Navigation Drawer](assets/screenshots/drawer.jpg)
 
 ---
 
