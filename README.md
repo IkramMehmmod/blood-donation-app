@@ -170,20 +170,32 @@ blood-donation-app/
 
 ## 📸 **Screenshots & Demo**
 
-### Home Screen
-![Home Screen](assets/screenshots/home.png)
+### 🏠 Home & Dashboard
+<div align="center">
+  <img src="assets/screenshots/home.png" width="300" alt="Home Screen" />
+  <br>
+  <em>Intuitive home screen with quick access to all features</em>
+</div>
 
-### Authentication
-![Login Screen](assets/screenshots/login.png.jpg)
-![Sign Up Screen](assets/screenshots/sign_up.png.jpg)
+### 🔐 Authentication System
+<div align="center">
+  <img src="assets/screenshots/login.png.jpg" width="300" alt="Login Screen" />
+  <img src="assets/screenshots/sign_up.png.jpg" width="300" alt="Sign Up Screen" />
+  <br>
+  <em>Secure authentication with elegant UI design</em>
+</div>
 
-### Donation Features
+### 💉 Donation Management
 ![Donors Screen](assets/screenshots/doners_screens.png)
 ![Donation Request](assets/screenshots/donation_request%20.png)
 
 ### User Interface
-![Profile Screen](assets/screenshots/profile.png)
-![Navigation Drawer](assets/screenshots/drawer.jpg)
+<div align="center">
+  <img src="assets/screenshots/doners_screens.png" width="300" alt="Donors Screen" />
+  <img src="assets/screenshots/donation_request%20.png" width="300" alt="Donation Request" />
+  <br>
+  <em>Streamlined donor discovery and donation request management</em>
+</div>
 
 ---
 
