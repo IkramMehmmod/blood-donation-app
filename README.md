@@ -172,7 +172,7 @@ blood-donation-app/
 
 ### 🏠 Home & Dashboard
 <div align="center">
-  <img src="assets/screenshots/home.png" width="300" alt="Home Screen" />
+  <img src="blood_donation_app/assets/screenshots/home.png" width="300" alt="Home Screen" />
   <br>
   <em>Intuitive home screen with quick access to all features</em>
 </div>
