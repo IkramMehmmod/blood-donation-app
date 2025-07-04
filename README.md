@@ -1,4 +1,4 @@
-# 🩸 LifeLink - Blood Donation App
+# 🩸 BloodBridge - Blood Donation App
 ### *Saving Lives Through Technology*
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
@@ -10,9 +10,9 @@
 
 ## 🌟 **Revolutionizing Blood Donation Management**
 
-LifeLink is a cutting-edge, enterprise-grade Flutter application that transforms how blood donation systems operate. Built for healthcare organizations, hospitals, and blood banks seeking to modernize their donation processes and save more lives through intelligent technology.
+BloodBridge is a cutting-edge, enterprise-grade Flutter application that transforms how blood donation systems operate. Built for healthcare organizations, hospitals, and blood banks seeking to modernize their donation processes and save more lives through intelligent technology.
 
-### **🎯 Why Choose LifeLink?**
+### **🎯 Why Choose BloodBridge?**
 - **📊 95% Faster Donor Matching** - Advanced algorithms connect donors with recipients in seconds
 - **🔒 HIPAA-Compliant Security** - Enterprise-grade data protection and privacy measures
 - **📱 Cross-Platform Excellence** - Native performance on both iOS and Android
@@ -238,7 +238,7 @@ blood-donation-app/
 ---
 
 ### **🗓️ Schedule a Demo**
-Ready to see LifeLink in action? Book a personalized demo with our team:
+Ready to see BloodBridge in action? Book a personalized demo with our team:
 - **Product Demonstration**: See all features in action
 - **Technical Deep Dive**: Discuss integration and customization
 - **ROI Analysis**: Understand the financial benefits
@@ -262,4 +262,4 @@ This is a proprietary software solution. All rights reserved. Commercial licensi
 
 **Ready to revolutionize your blood donation program?** 
 
-Contact us today to schedule a personalized demonstration and discover how LifeLink can transform your organization's life-saving capabilities.
+Contact us today to schedule a personalized demonstration and discover how BloodBridge can transform your organization's life-saving capabilities.
