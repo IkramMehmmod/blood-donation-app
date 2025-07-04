@@ -179,20 +179,20 @@ blood-donation-app/
 
 ### 🔐 Authentication System
 <div align="center">
-  <img src="assets/screenshots/login.png.jpg" width="300" alt="Login Screen" />
-  <img src="assets/screenshots/sign_up.png.jpg" width="300" alt="Sign Up Screen" />
+  <img src="blood_donation_app/assets/screenshots/login.png.jpg" width="300" alt="Login Screen" />
+  <img src="blood_donation_app/assets/screenshots/sign_up.png.jpg" width="300" alt="Sign Up Screen" />
   <br>
   <em>Secure authentication with elegant UI design</em>
 </div>
 
 ### 💉 Donation Management
-![Donors Screen](assets/screenshots/doners_screens.png)
-![Donation Request](assets/screenshots/donation_request%20.png)
+![Donors Screen](blood_donation_app/assets/screenshots/doners_screens.png)
+![Donation Request](blood_donation_app/assets/screenshots/donation_request%20.png)
 
 ### User Interface
 <div align="center">
-  <img src="assets/screenshots/doners_screens.png" width="300" alt="Donors Screen" />
-  <img src="assets/screenshots/donation_request%20.png" width="300" alt="Donation Request" />
+  <img src="blood_donation_app/assets/screenshots/doners_screens.png" width="300" alt="Donors Screen" />
+  <img src="blood_donation_app/assets/screenshots/donation_request%20.png" width="300" alt="Donation Request" />
   <br>
   <em>Streamlined donor discovery and donation request management</em>
 </div>
