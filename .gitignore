@@ -84,3 +84,9 @@ functions/.firebase/
 # Package lock files (optional - you might want to keep these)
 # package-lock.json
 # pubspec.lock
+
+# Sensitive files
+serviceAccountKey.json
+firebase.json
+firestore.rules
+deploy_security.sh

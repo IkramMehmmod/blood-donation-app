@@ -16,6 +16,7 @@ class UserModel {
   final String imageUrl;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final bool isVerified;
 
   UserModel({
     this.id,
@@ -32,6 +33,7 @@ class UserModel {
     required this.imageUrl,
     DateTime? createdAt,
     this.updatedAt,
+    this.isVerified = false,
   }) : createdAt = createdAt ?? DateTime.now();
 
   static DateTime? _parseDateTime(dynamic value) {
@@ -69,6 +71,7 @@ class UserModel {
       imageUrl: json['imageUrl'] ?? '',
       createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
       updatedAt: _parseDateTime(json['updatedAt']),
+      isVerified: json['isVerified'] ?? false,
     );
   }
 
@@ -88,6 +91,7 @@ class UserModel {
       'imageUrl': imageUrl,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'isVerified': isVerified,
     };
   }
 
@@ -107,6 +111,7 @@ class UserModel {
     String? imageUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isVerified,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -123,6 +128,7 @@ class UserModel {
       imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isVerified: isVerified ?? this.isVerified,
     );
   }
 }

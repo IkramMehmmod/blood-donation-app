@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/custom_button.dart';
 import '../../routes/app_routes.dart';
 import '../../models/user_model.dart';
 import '../../services/firebase_service.dart';
+import 'package:provider/provider.dart';
+import '../../services/auth_service.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final String email;
@@ -132,7 +135,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       debugPrint('Reloaded user. Verified: \\${user.emailVerified}');
       if (user.emailVerified) {
         debugPrint('Email verified. Creating Firestore user...');
-        // Create Firestore user here
         final userModel = UserModel(
           id: user.uid,
           email: widget.email,
@@ -148,14 +150,17 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           imageUrl: '',
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
+          isVerified: true,
         );
-        // You may need to import and use your AuthService or FirebaseService here
-        // For example:
-        // await Provider.of<AuthService>(context, listen: false).createFirestoreUser(userModel);
-        // Or, if you have a FirebaseService instance:
-        // await FirebaseService().createUser(userModel);
-        // For now, let's use FirebaseService directly:
         await FirebaseService().createUser(userModel);
+        await FirebaseService()
+            .firestore
+            .collection('users')
+            .doc(user.uid)
+            .set({'isVerified': true}, SetOptions(merge: true));
+        // Update AuthService state so user is not in guest mode
+        final authService = Provider.of<AuthService>(context, listen: false);
+        authService.updateCurrentUser(userModel);
         debugPrint('Firestore user created for: \\${userModel.email}');
         Navigator.pushNamedAndRemoveUntil(
             context, AppRoutes.home, (route) => false);

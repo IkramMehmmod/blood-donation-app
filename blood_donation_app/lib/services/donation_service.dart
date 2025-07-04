@@ -46,7 +46,10 @@ class DonationService extends ChangeNotifier {
   // Create a new donation record
   Future<void> createDonation(DonationModel donation) async {
     try {
-      await _firestore.collection('donations').add(donation.toJson());
+      final donationData = donation.toJson();
+      final docRef = _firestore.collection('donations').doc();
+      donationData['id'] = docRef.id;
+      await docRef.set(donationData);
       debugPrint('✅ Donation created successfully');
     } catch (e) {
       debugPrint('❌ Error creating donation: $e');

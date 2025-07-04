@@ -151,7 +151,6 @@ class FirebaseService {
   Future<void> createDonationFromAcceptedRequest(
       String userId, RequestModel request) async {
     try {
-      // Create the donation document - Firestore will create the collection automatically
       final donationData = {
         'userId': userId,
         'bloodGroup': request.bloodGroup,
@@ -165,8 +164,9 @@ class FirebaseService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       };
-
-      await _firestore.collection('donations').add(donationData);
+      final docRef = _firestore.collection('donations').doc();
+      donationData['id'] = docRef.id;
+      await docRef.set(donationData);
       debugPrint('Donation record created for accepted request: ${request.id}');
     } catch (e) {
       debugPrint('Error creating donation from accepted request: $e');
@@ -282,7 +282,6 @@ class FirebaseService {
   Future<void> addRequest(RequestModel request) async {
     try {
       final requestData = request.toJson();
-      // Ensure requesterId is set and correct for encryption
       final requesterId = request.requesterId.isNotEmpty
           ? request.requesterId
           : (requestData['requesterId'] ?? '');
@@ -305,18 +304,13 @@ class FirebaseService {
         requestData['additionalInfo'] = await encryptionService
             .encryptWithUserKey(request.additionalInfo, requesterId);
       }
-      // Store plain text versions for notification/Cloud Function use only (only necessary fields)
-      // requestData['patientName_plain'] = request.patientName;
-      // requestData['bloodGroup_plain'] = request.bloodGroup;
-      // requestData['hospital_plain'] = request.hospital;
-      // requestData['location_plain'] = request.location;
-      // requestData['contactNumber_plain'] = request.contactNumber;
       debugPrint('  encrypted patientName: ${requestData['patientName']}');
       debugPrint('  bloodGroup: ${requestData['bloodGroup']}');
       requestData['createdAt'] = FieldValue.serverTimestamp();
       requestData['updatedAt'] = FieldValue.serverTimestamp();
-
-      await _firestore.collection('requests').add(requestData);
+      final docRef = _firestore.collection('requests').doc();
+      requestData['id'] = docRef.id;
+      await docRef.set(requestData);
     } catch (e) {
       debugPrint('Error adding request: $e');
       rethrow;
@@ -704,80 +698,19 @@ class FirebaseService {
     Map<String, dynamic>? data,
   }) async {
     try {
-      // Defensive: Prevent self-notification for request/blood_request
-      if ((type == 'request' || type == 'blood_request') &&
-          referenceId != null) {
-        final requestDoc =
-            await _firestore.collection('requests').doc(referenceId).get();
-        if (requestDoc.exists && requestDoc.data() != null) {
-          final requestData = requestDoc.data()!;
-          final requesterId =
-              requestData['requesterId'] ?? requestData['requesterId'];
-          if (userId == requesterId) {
-            debugPrint(
-                '[NOTIF] Skipping notification: userId == requesterId ($userId)');
-            return;
-          }
-        }
-      }
-      String finalMessage = message;
-      String debugPatientName = '';
-      String debugBloodGroup = '';
-      Map<String, dynamic>? debugRequestData;
-      // If this is a request or blood_request notification, ensure patientName and bloodGroup are included as plain text and used in the message
-      if ((type == 'request' || type == 'blood_request') &&
-          referenceId != null) {
-        final requestDoc =
-            await _firestore.collection('requests').doc(referenceId).get();
-        if (requestDoc.exists && requestDoc.data() != null) {
-          final requestData = requestDoc.data()!;
-          debugRequestData = requestData;
-          final requesterId =
-              requestData['requesterId'] ?? requestData['requesterId'];
-          final encryptionService = EncryptionService();
-          String decryptedPatientName = '';
-          if (requesterId != null &&
-              (requestData['patientName'] != null ||
-                  requestData['patientName'] != null)) {
-            final rawPatientName =
-                requestData['patientName'] ?? requestData['patientName'] ?? '';
-            debugPrint('[NOTIF] Raw patientName: $rawPatientName');
-            decryptedPatientName = await encryptionService.decryptWithUserKey(
-              rawPatientName,
-              requesterId,
-            );
-            debugPrint('[NOTIF] Decrypted patientName: $decryptedPatientName');
-            debugPatientName = decryptedPatientName;
-          }
-          final bloodGroup = requestData['bloodGroup'] ??
-              requestData['bloodGroup'] ??
-              'Unknown';
-          debugPrint('[NOTIF] Blood group: $bloodGroup');
-          debugBloodGroup = bloodGroup;
-          data ??= {};
-          data['patientName'] = decryptedPatientName;
-          data['bloodGroup'] = bloodGroup;
-          // Build a human-readable message
-          finalMessage =
-              'A patient in $decryptedPatientName needs $bloodGroup blood. Can you help?';
-        }
-      }
-      // Debug print before creating notification
-      debugPrint('[NOTIF] Creating notification:');
-      debugPrint('  referenceId: $referenceId');
-      debugPrint('  requestData: $debugRequestData');
-      debugPrint('  patientName: $debugPatientName');
-      debugPrint('  bloodGroup: $debugBloodGroup');
-      await _firestore.collection('notifications').add({
+      final notificationData = {
         'userId': userId,
         'title': title,
-        'message': finalMessage,
+        'message': message,
         'type': type,
         'referenceId': referenceId,
         'isRead': false,
         'createdAt': FieldValue.serverTimestamp(),
         if (data != null) 'data': data,
-      });
+      };
+      final docRef = _firestore.collection('notifications').doc();
+      notificationData['id'] = docRef.id;
+      await docRef.set(notificationData);
       debugPrint('Notification added to Firestore for $userId');
     } catch (e) {
       debugPrint('Error creating notification in FirebaseService: $e');
