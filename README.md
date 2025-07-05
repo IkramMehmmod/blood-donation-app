@@ -8,16 +8,16 @@
 
 ---
 
-## 🌟 **Revolutionizing Blood Donation Management**
+## **Revolutionizing Blood Donation Management**
 
 BloodBridge is a cutting-edge, enterprise-grade Flutter application that transforms how blood donation systems operate. Built for healthcare organizations, hospitals, and blood banks seeking to modernize their donation processes and save more lives through intelligent technology.
 
-### **🎯 Why Choose BloodBridge?**
-- **📊 95% Faster Donor Matching** - Advanced algorithms connect donors with recipients in seconds
-- **🔒 HIPAA-Compliant Security** - Enterprise-grade data protection and privacy measures
-- **📱 Cross-Platform Excellence** - Native performance on both iOS and Android
-- **🌐 Real-Time Operations** - Live updates, notifications, and seamless communication
-- **📈 Scalable Architecture** - Handles thousands of concurrent users effortlessly
+### ** Why Choose BloodBridge?**
+- ** 95% Faster Donor Matching** - Advanced algorithms connect donors with recipients in seconds
+- ** HIPAA-Compliant Security** - Enterprise-grade data protection and privacy measures
+- ** Cross-Platform Excellence** - Native performance on both iOS and Android
+- ** Real-Time Operations** - Live updates, notifications, and seamless communication
+- ** Scalable Architecture** - Handles thousands of concurrent users effortlessly
 
 ---
 
